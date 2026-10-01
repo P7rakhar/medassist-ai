@@ -6,6 +6,7 @@ Order of decisions:
   2. Any red-flag rule fires                 -> HIGH (hard safety override, never averaged away)
   3. Symptoms that fit no clear pattern      -> UNCERTAIN
   4. Otherwise a 0-100 risk score            -> LOW (<35) / MODERATE (35-64) / HIGH (>=65)
+     with a floor: chest pain, breathlessness or blood in urine are never LOW
 """
 from __future__ import annotations
 
@@ -31,6 +32,15 @@ def severity_points(sev: float) -> float:
 
 
 MAX_RISK_FACTOR_POINTS = 15
+
+# Symptoms that are never rated LOW, however benign the rest looks
+# (a heart attack can feel like acidity; breathlessness or blood in urine always needs a doctor).
+NEVER_LOW = {
+    "chest_pain": ("Chest pain is never rated low risk: heart problems can feel like acidity",
+                   "सीने के दर्द को कभी कम जोखिम नहीं माना जाता: दिल की समस्या एसिडिटी जैसी लग सकती है"),
+    "breathlessness": ("Breathlessness is never rated low risk", "सांस फूलने को कभी कम जोखिम नहीं माना जाता"),
+    "blood_in_urine": ("Blood in urine is never rated low risk", "पेशाब में खून को कभी कम जोखिम नहीं माना जाता"),
+}
 
 
 def assess(present: list[str], conditions: list[ConditionMatch], red_flags: list[dict],
@@ -86,6 +96,9 @@ def assess(present: list[str], conditions: list[ConditionMatch], red_flags: list
             add(f"Existing condition: {rf['label']['en']}", f"पहले से बीमारी: {rf['label']['hi']}", pts)
 
     score = max(0.0, min(100.0, score))
+    floor = next((sid for sid in NEVER_LOW if sid in present), None)
+    if floor and score < LOW_MAX:
+        add(*NEVER_LOW[floor], LOW_MAX - score); score = LOW_MAX
     level = "LOW" if score < LOW_MAX else "MODERATE" if score < MODERATE_MAX else "HIGH"
     return _result(level, round(score), reasons, confidence=round(top.likelihood, 2))
 

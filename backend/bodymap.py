@@ -5,7 +5,7 @@ People rarely use textbook phrases. They say "my stomach hurts", "dard ho raha
 hai pet mein" or "सिर में बहुत दर्द". Instead of listing every sentence, we
 recognise a BODY PART and a SENSATION anywhere within a short window of each
 other (either order, same clause) and map the pair to a symptom in the
-knowledge graph. 25 body parts x 11 sensations in English, Hindi and Hinglish.
+knowledge graph. 25 body parts x 14 sensations in English, Hindi and Hinglish.
 """
 from __future__ import annotations
 

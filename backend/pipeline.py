@@ -17,6 +17,7 @@ from pathlib import Path
 
 from . import llm
 from .clarify import next_questions
+from .handoff import build_note
 from .knowledge_graph import KnowledgeGraph
 from .matching import rank_doctors
 from .nlp import Mention, SymptomExtractor, detect_language, normalise
@@ -173,6 +174,8 @@ class MedAssistEngine:
             "trace": trace, "total_ms": round((time.perf_counter() - t_all) * 1000, 2),
             "disclaimer": DISCLAIMER,
         }
+        # Pre-consultation note for the doctor (also used for WhatsApp sharing and printing).
+        result["handoff"] = build_note(result, text, now)
         if self.store and log_case and (present or text):
             self.store.log_case(now, self.nearest_area(lat, lon), lat, lon, lang["code"], triage["level"],
                                 triage["score"], conditions[0].id if conditions else None, present)

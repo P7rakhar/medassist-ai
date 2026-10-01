@@ -1,0 +1,34 @@
+{
+  "_comment": "Negation / past-history cases. Labels are what the sentence literally says (e.g. 'no chest pain' means chest_pain must NOT be counted), so they need no clinical judgement. Written by Team Neuraxis.",
+  "cases": [
+    {"id": "c-en01", "lang": "en", "text": "I don't have chest pain, just acidity after meals", "levels": ["LOW", "MODERATE"], "present": ["heartburn"], "not_present": ["chest_pain"]},
+    {"id": "c-en02", "lang": "en", "text": "no shortness of breath, only a runny nose and sneezing", "levels": ["LOW", "MODERATE"], "present": ["runny_nose", "sneezing"], "not_present": ["breathlessness"]},
+    {"id": "c-en03", "lang": "en", "text": "I had chest pain last year, now just a dry cough for 2 days", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["chest_pain"]},
+    {"id": "c-en04", "lang": "en", "text": "fever for 2 days but no vomiting and no rash", "levels": ["LOW", "MODERATE"], "present": ["fever"], "not_present": ["vomiting", "rash"]},
+    {"id": "c-en05", "lang": "en", "text": "no fainting, no confusion, just feeling tired", "levels": ["LOW", "MODERATE", "UNCERTAIN"], "present": ["fatigue"], "not_present": ["unconscious", "confusion"]},
+    {"id": "c-en06", "lang": "en", "text": "headache since morning, no blurred vision and no stiff neck", "levels": ["LOW", "MODERATE"], "present": ["headache"], "not_present": ["blurred_vision", "neck_pain"]},
+    {"id": "c-en07", "lang": "en", "text": "coughing for a week, no blood in cough", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["coughing_blood"]},
+    {"id": "c-en08", "lang": "en", "text": "stomach pain since yesterday, no fever, no diarrhea", "levels": ["LOW", "MODERATE"], "present": ["abdominal_pain"], "not_present": ["fever", "diarrhea"]},
+    {"id": "c-en09", "lang": "en", "text": "severe chest pain and sweating, no fever", "levels": ["HIGH"], "present": ["chest_pain", "sweating"], "not_present": ["fever"]},
+
+    {"id": "c-hi01", "lang": "hi", "text": "सीने में दर्द नहीं है, बस एसिडिटी है", "levels": ["LOW", "MODERATE"], "present": ["heartburn"], "not_present": ["chest_pain"]},
+    {"id": "c-hi02", "lang": "hi", "text": "सांस फूलना नहीं है, सिर्फ नाक बह रही है", "levels": ["LOW", "MODERATE"], "present": ["runny_nose"], "not_present": ["breathlessness"]},
+    {"id": "c-hi03", "lang": "hi", "text": "पिछले साल सीने में दर्द हुआ था, अब बस खांसी है", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["chest_pain"]},
+    {"id": "c-hi04", "lang": "hi", "text": "दो दिन से बुखार है, उल्टी नहीं हुई", "levels": ["LOW", "MODERATE"], "present": ["fever"], "not_present": ["vomiting"]},
+    {"id": "c-hi05", "lang": "hi", "text": "बेहोशी नहीं हुई, बस थकान है", "levels": ["LOW", "MODERATE", "UNCERTAIN"], "present": ["fatigue"], "not_present": ["unconscious"]},
+    {"id": "c-hi06", "lang": "hi", "text": "खांसी है लेकिन खांसी में खून नहीं है", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["coughing_blood"]},
+    {"id": "c-hi07", "lang": "hi", "text": "सिर दर्द है, चक्कर नहीं आ रहे", "levels": ["LOW", "MODERATE"], "present": ["headache"], "not_present": ["dizziness"]},
+    {"id": "c-hi08", "lang": "hi", "text": "पेट में दर्द है, दस्त नहीं है और बुखार भी नहीं", "levels": ["LOW", "MODERATE"], "present": ["abdominal_pain"], "not_present": ["diarrhea", "fever"]},
+    {"id": "c-hi09", "lang": "hi", "text": "बोलने में दिक्कत है और चेहरा टेढ़ा हो गया, बुखार नहीं है", "levels": ["HIGH"], "present": ["slurred_speech", "face_droop"], "not_present": ["fever"]},
+
+    {"id": "c-hg01", "lang": "hinglish", "text": "seene mein dard nahi hai, bas acidity hai", "levels": ["LOW", "MODERATE"], "present": ["heartburn"], "not_present": ["chest_pain"]},
+    {"id": "c-hg02", "lang": "hinglish", "text": "saans phoolna nahi hai, sirf naak beh rahi hai", "levels": ["LOW", "MODERATE"], "present": ["runny_nose"], "not_present": ["breathlessness"]},
+    {"id": "c-hg03", "lang": "hinglish", "text": "pichle saal seene mein dard hua tha, ab sirf khansi hai", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["chest_pain"]},
+    {"id": "c-hg04", "lang": "hinglish", "text": "do din se bukhar hai, ulti nahi hui", "levels": ["LOW", "MODERATE"], "present": ["fever"], "not_present": ["vomiting"]},
+    {"id": "c-hg05", "lang": "hinglish", "text": "behoshi nahi hui, bas kamzori hai", "levels": ["LOW", "MODERATE", "UNCERTAIN"], "present": ["fatigue"], "not_present": ["unconscious"]},
+    {"id": "c-hg06", "lang": "hinglish", "text": "khansi hai par khansi mein khoon nahi", "levels": ["LOW", "MODERATE"], "present": ["cough"], "not_present": ["coughing_blood"]},
+    {"id": "c-hg07", "lang": "hinglish", "text": "sir dard hai, chakkar nahi aa rahe", "levels": ["LOW", "MODERATE"], "present": ["headache"], "not_present": ["dizziness"]},
+    {"id": "c-hg08", "lang": "hinglish", "text": "pet mein dard hai, dast nahi aur bukhar bhi nahi", "levels": ["LOW", "MODERATE"], "present": ["abdominal_pain"], "not_present": ["diarrhea", "fever"]},
+    {"id": "c-hg09", "lang": "hinglish", "text": "bolne mein dikkat hai aur muh tedha ho gaya, bukhar nahi hai", "levels": ["HIGH"], "present": ["slurred_speech", "face_droop"], "not_present": ["fever"]}
+  ]
+}
