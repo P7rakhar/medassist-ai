@@ -444,6 +444,9 @@ async function confirmBooking() {
  * or until there has been no speech for SILENCE_MS (with a visible countdown first).
  */
 const SILENCE_MS = window.MEDASSIST_SILENCE_MS || 8000;
+// Phones: the mic can serve only one listener, and Android Chrome's continuous mode repeats or drops text.
+// So on phones we use short single-utterance sessions (continuous = false) and our own restart loop.
+const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 const voice = { rec: null, wanted: false, finalText: "", interim: "", lastHeard: 0, started: 0, timer: null,
                 restarts: [], audio: null, raf: 0 };
 
@@ -469,24 +472,26 @@ function toggleMic() {
   renderLive();
   openSession(SR);
   voice.timer = setInterval(tickVoice, 250);
-  startLevelMeter();
 }
 
 function openSession(SR) {
   const rec = new SR();
   rec.lang = state.voiceLang;
-  rec.continuous = true;
+  rec.continuous = !IS_MOBILE;
   rec.interimResults = true;
   rec.maxAlternatives = 1;
   rec.onresult = (e) => {
     let interim = "";
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i];
-      if (res.isFinal) voice.finalText = joinText(voice.finalText, res[0].transcript);
-      else interim += res[0].transcript;
+      const said = res[0].transcript.trim();
+      if (res.isFinal) {
+        if (said && !voice.finalText.endsWith(said)) voice.finalText = joinText(voice.finalText, said);  // Android can repeat a final result
+      } else interim += res[0].transcript;
     }
     voice.interim = interim.trim();
     voice.lastHeard = Date.now();
+    showHearing();
     renderLive();
   };
   rec.onerror = (e) => {
@@ -524,7 +529,6 @@ function stopVoice() {
 
 function finishVoice() {
   clearInterval(voice.timer);
-  stopLevelMeter();
   if (voice.interim) { voice.finalText = joinText(voice.finalText, voice.interim); voice.interim = ""; }
   $("text").value = voice.finalText;
   $("mic").setAttribute("aria-pressed", "false");
@@ -545,31 +549,13 @@ function renderLive() {
   $("text").value = joinText(voice.finalText, voice.interim);
 }
 
-async function startLevelMeter() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    ctx.createMediaStreamSource(stream).connect(analyser);
-    const data = new Uint8Array(analyser.fftSize);
-    const bars = document.querySelectorAll("#live .level i");
-    voice.audio = { stream, ctx };
-    const draw = () => {
-      analyser.getByteTimeDomainData(data);
-      let sum = 0;
-      for (const v of data) sum += (v - 128) * (v - 128);
-      const rms = Math.min(1, Math.sqrt(sum / data.length) / 40);
-      bars.forEach((b, i) => { b.style.transform = `scaleY(${0.2 + rms * (0.6 + 0.4 * Math.sin(i + Date.now() / 120))})`; });
-      voice.raf = requestAnimationFrame(draw);
-    };
-    draw();
-  } catch { document.querySelector("#live .level")?.setAttribute("hidden", ""); }
-}
-
-function stopLevelMeter() {
-  cancelAnimationFrame(voice.raf);
-  if (voice.audio) { voice.audio.stream.getTracks().forEach((tr) => tr.stop()); voice.audio.ctx.close(); voice.audio = null; }
+/* The level bars animate when speech arrives. We deliberately do NOT open the microphone a second time
+   (getUserMedia) for a real level meter: on phones that blocks the speech recogniser. */
+function showHearing() {
+  const live = $("live");
+  live.classList.add("hearing");
+  clearTimeout(voice.hearingTimer);
+  voice.hearingTimer = setTimeout(() => live.classList.remove("hearing"), 700);
 }
 
 function speakResult() {
