@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedAssist AI</title>
+  <meta name="description" content="Multilingual AI symptom triage and doctor matching — Team Neuraxis">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231C2554'/%3E%3Cpath d='M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#fff"/><path d="M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z" fill="#1C2554"/></svg>
+      <div>
+        <strong>MedAssist AI</strong>
+        <span data-i18n="tagline">Healthcare guidance in your language</span>
+      </div>
+    </div>
+    <div class="controls">
+      <a class="nav-link" href="insights.html" data-i18n="insightsLink">Health officer insights</a>
+      <label class="field-inline">
+        <span data-i18n="location">Location</span>
+        <select id="location"></select>
+      </label>
+      <div class="seg" role="group" aria-label="Consultation mode">
+        <button type="button" data-mode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
+        <button type="button" data-mode="video" data-i18n="video">Video consult</button>
+      </div>
+      <div class="seg" role="group" aria-label="Interface language">
+        <button type="button" data-ui="en" class="on">English</button>
+        <button type="button" data-ui="hi">हिंदी</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="input-col" aria-labelledby="ask-h">
+      <h1 id="ask-h" data-i18n="askTitle">How are you feeling?</h1>
+      <p class="hint" data-i18n="askHint">Speak or type in English, Hindi or Hinglish. Mention how long it has lasted.</p>
+
+      <div class="composer">
+        <textarea id="text" rows="4" data-i18n-ph="placeholder" placeholder="e.g. I have had fever and body ache for 3 days"></textarea>
+        <div id="live" class="live" hidden aria-live="polite">
+          <span class="level" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span id="live-text"><span id="live-final"></span> <span id="live-interim" class="interim"></span></span>
+          <span id="live-meta" class="live-meta"></span>
+        </div>
+        <div class="composer-row">
+          <button id="mic" class="mic" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+            <span data-i18n="speak">Speak</span>
+          </button>
+          <div class="seg seg-light" role="group" aria-label="Voice language" title="Language you will speak in">
+            <button type="button" data-voice="en-IN" class="on">EN</button>
+            <button type="button" data-voice="hi-IN">हिं</button>
+          </div>
+          <label class="age">
+            <span data-i18n="age">Age</span>
+            <input id="age" type="number" min="0" max="120" inputmode="numeric" placeholder="—">
+          </label>
+          <button id="go" class="primary" type="button" data-i18n="analyse">Check symptoms</button>
+        </div>
+        <p id="mic-status" class="mic-status" aria-live="polite"></p>
+      </div>
+
+      <div class="examples">
+        <span class="examples-label" data-i18n="tryExample">Try an example</span>
+        <div id="examples" class="chips"></div>
+      </div>
+
+      <section class="trace" aria-labelledby="trace-h">
+        <h2 id="trace-h" data-i18n="traceTitle">How the AI reached this result</h2>
+        <p class="hint" id="trace-empty" data-i18n="traceEmpty">Each step of the analysis pipeline appears here, with its timing.</p>
+        <ol id="trace" class="trace-list"></ol>
+        <p id="kg-stats" class="kg-stats"></p>
+      </section>
+    </section>
+
+    <section class="result-col" aria-live="polite">
+      <div id="empty" class="empty">
+        <h2 data-i18n="emptyTitle">Your result will appear here</h2>
+        <p data-i18n="emptyBody">You'll see the risk level, what to do next, likely causes and doctors you can book — in English or Hindi.</p>
+        <ul class="levels-key">
+          <li><i class="dot low"></i><span data-i18n="lvl_LOW">Low risk</span></li>
+          <li><i class="dot moderate"></i><span data-i18n="lvl_MODERATE">Moderate risk</span></li>
+          <li><i class="dot high"></i><span data-i18n="lvl_HIGH">High risk</span></li>
+          <li><i class="dot uncertain"></i><span data-i18n="lvl_UNCERTAIN">Needs a doctor's review</span></li>
+        </ul>
+      </div>
+
+      <div id="result" hidden>
+        <div id="verdict" class="verdict">
+          <div class="verdict-main">
+            <p class="verdict-level" id="v-level"></p>
+            <p class="verdict-alt" id="v-level-alt"></p>
+            <p class="verdict-action" id="v-action"></p>
+          </div>
+          <div class="verdict-side">
+            <div class="gauge" id="v-gauge"><span id="v-score"></span><small data-i18n="riskScore">risk score</small></div>
+            <button id="speak-out" class="ghost-light" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4Z"/></svg>
+              <span data-i18n="readAloud">Read aloud</span>
+            </button>
+          </div>
+          <div id="v-emergency" class="emergency" hidden>
+            <a href="tel:112" class="call">112</a><a href="tel:108" class="call">108</a>
+            <span data-i18n="emergencyNote">Emergency numbers in India — ambulance and police</span>
+          </div>
+        </div>
+
+        <div class="block" id="questions-block">
+          <div class="block-head">
+            <h3 data-i18n="questionsTitle">A few quick questions</h3>
+            <button type="button" id="restart" class="link-btn" hidden data-i18n="startOver">Start over</button>
+          </div>
+          <p class="hint" data-i18n="questionsHint">Each answer updates the assessment straight away.</p>
+          <div id="questions" class="questions"></div>
+        </div>
+
+        <div class="block">
+          <h3 data-i18n="understood">What we understood</h3>
+          <div id="understood" class="chips"></div>
+          <p id="facts" class="facts"></p>
+          <div id="context-notes" class="context-notes"></div>
+          <ul id="reasons" class="reasons"></ul>
+        </div>
+
+        <div class="block" id="conditions-block">
+          <h3 data-i18n="likely">Possible causes</h3>
+          <ul id="conditions" class="conditions"></ul>
+          <p class="fine" data-i18n="likelyNote">Relative match from our medical knowledge graph — not a diagnosis.</p>
+        </div>
+
+        <div class="block" id="advice-block">
+          <h3 data-i18n="advice">What you can do now</h3>
+          <p id="advice" class="advice"></p>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3 data-i18n="doctors">Recommended doctors</h3>
+            <span id="doc-specialty" class="pill"></span>
+          </div>
+          <p class="hint" id="formula" data-i18n="formula">Ranked by match score = 0.30 specialty + 0.20 distance + 0.15 rating + 0.15 availability + 0.10 language + 0.10 cost</p>
+          <div class="legend" id="legend"></div>
+          <ol id="doctors" class="doctors"></ol>
+        </div>
+
+        <p class="disclaimer" id="disclaimer"></p>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="book-dlg">
+    <form method="dialog" id="book-form">
+      <h2 id="book-title"></h2>
+      <p id="book-sub" class="hint"></p>
+      <fieldset>
+        <legend data-i18n="pickSlot">Pick a time</legend>
+        <div id="slot-list" class="slots"></div>
+      </fieldset>
+      <label class="stack"><span data-i18n="yourName">Your name</span><input id="pname" autocomplete="name" required></label>
+      <div class="seg wide" id="book-mode">
+        <button type="button" data-bmode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
+        <button type="button" data-bmode="video" data-i18n="video">Video consult</button>
+      </div>
+      <p id="book-error" class="error" role="alert"></p>
+      <div class="dlg-actions">
+        <button value="cancel" class="ghost" data-i18n="cancel" formnovalidate>Cancel</button>
+        <button id="confirm-book" class="primary" type="button" data-i18n="confirm">Confirm booking</button>
+      </div>
+    </form>
+    <div id="book-done" hidden>
+      <h2 data-i18n="booked">Booked</h2>
+      <dl id="book-summary" class="summary"></dl>
+      <div class="dlg-actions"><button class="primary" id="close-done" type="button" data-i18n="done">Done</button></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

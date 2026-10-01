@@ -1,0 +1,40 @@
+{
+  "_comment": "ConText / NegEx trigger phrases (Chapman et al. 2001; Harkema et al. 2009). English list adapted from negspacy (MIT, github.com/kvthr/negspacy); Hindi and Hinglish lists written by Team Neuraxis. direction: forward = applies to symptoms AFTER the phrase, backward = BEFORE it. Longest phrase wins, so pseudo-triggers like 'not going away' stop 'not' from negating. Add phrases freely; matching is spelling-tolerant.",
+  "scope_tokens": 6,
+
+  "NEGATED": {
+    "forward": ["no", "not", "without", "denies", "denied", "denying", "absence of", "no sign of", "no signs of", "negative for", "free of", "never had", "dont have", "do not have", "did not have", "didnt have", "doesnt have", "does not have", "havent had", "have not had", "not having", "no more", "neither", "nor", "none", "zero",
+                "koi nahi", "na hi", "bina", "बिना", "कोई नहीं"],
+    "backward": ["nahi", "nahi hai", "nahi tha", "nahi he", "nahin", "na", "absent", "is absent", "not present", "ruled out", "none", "bilkul nahi", "ab nahi",
+                 "नहीं", "नहीं है", "नहीं था", "ना", "बिल्कुल नहीं", "अब नहीं"]
+  },
+  "UNCERTAIN": {
+    "forward": ["maybe", "perhaps", "possibly", "probably", "might have", "may have", "might be", "may be", "could be", "not sure if", "not sure whether", "i think", "i guess", "i feel like", "kind of", "sort of", "suspect", "suspected",
+                "shayad", "lagta hai", "ho sakta hai", "kuch kuch", "शायद", "लगता है", "हो सकता है"],
+    "backward": ["maybe", "i think", "sa lag raha", "si lag rahi", "sa lagta", "jaisa lag raha", "jaisa lagta", "जैसा लग रहा", "सा लग रहा"]
+  },
+  "HISTORICAL": {
+    "forward": ["history of", "past history of", "used to have", "used to get", "had in the past", "previously had", "last year", "last month", "years ago", "in the past",
+                "pehle", "pichle saal", "pichle mahine", "kabhi tha", "पहले", "पिछले साल", "पिछले महीने"],
+    "backward": ["last year", "last month", "years ago", "months ago", "in the past", "went away", "has gone", "is gone", "gone now", "resolved", "recovered", "got better", "is better now", "is fine now", "no longer",
+                 "theek ho gaya", "theek ho gayi", "thik ho gaya", "chala gaya", "chali gayi", "utar gaya", "ab theek hai", "pehle tha", "pehle thi",
+                 "ठीक हो गया", "ठीक हो गई", "चला गया", "उतर गया", "अब ठीक है", "पहले था", "पहले थी"]
+  },
+  "FAMILY": {
+    "forward": ["family history of", "family history", "my family has", "runs in", "parivar mein", "khandan mein", "family mein", "परिवार में", "खानदान में"],
+    "backward": ["runs in my family", "runs in the family", "in my family", "family history", "parivar mein hai", "khandan mein hai", "परिवार में है"]
+  },
+  "PSEUDO": {
+    "both": ["not only", "no change", "no improvement", "no relief", "not better", "not getting better", "not improving", "not going away", "not going down", "not stopping", "wont go away", "doesnt go away", "not reducing", "not sure",
+             "nahi ja raha", "nahi ja rahi", "nahi utar raha", "nahi utar rahi", "nahi ruk raha", "nahi ruk rahi", "kam nahi ho raha", "kam nahi ho rahi", "theek nahi ho raha", "aaram nahi", "farak nahi", "fark nahi pad raha",
+             "नहीं जा रहा", "नहीं उतर रहा", "नहीं रुक रहा", "कम नहीं हो रहा", "ठीक नहीं हो रहा", "आराम नहीं", "फर्क नहीं"]
+  },
+  "TERMINATE": {
+    "both": ["but", "however", "though", "although", "except", "apart from", "aside from", "still", "yet", "only", "and i", "and my", "and also", "also have", "also has",
+             "lekin", "magar", "par", "parantu", "kintu", "phir bhi", "balki", "sirf", "bas",
+             "लेकिन", "मगर", "परंतु", "किंतु", "फिर भी", "बल्कि", "सिर्फ", "बस"]
+  },
+  "FORWARD_STOP_WORDS": ["i", "im", "my", "me", "have", "has", "had", "having", "got", "getting", "feel", "feeling", "there", "mujhe", "mera", "meri", "mere", "मुझे", "मेरा", "मेरी", "मेरे"],
+  "BACKWARD_STOP_WORDS": ["hai", "hain", "he", "tha", "thi", "the", "ho", "है", "हैं", "था", "थी", "थे", "हो"],
+  "LIST_WORDS": ["or", "nor", "ya", "athva", "या", "अथवा"]
+}

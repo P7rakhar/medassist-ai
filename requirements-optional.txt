@@ -1,0 +1,2 @@
+# Only needed for the optional Neo4j graph backend (see backend/graph_neo4j.py).
+neo4j>=5.0
