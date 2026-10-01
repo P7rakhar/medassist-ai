@@ -1,0 +1,1047 @@
+{
+ "_comment": "SYNTHETIC demo data. Names, clinics, ratings and fees are fictional and generated for the prototype. In production this comes from the ABDM Health Facility / Healthcare Professionals Registry.",
+ "doctors": [
+  {
+   "id": "D01",
+   "name": "Dr. Meera Sharma",
+   "specialty": "General Physician",
+   "clinic": "Sector 18 Family Clinic",
+   "area": "Noida Sec 18",
+   "lat": 28.57,
+   "lon": 77.321,
+   "rating": 4.6,
+   "reviews": 312,
+   "fee": 400,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:30",
+     "end": "13:30"
+    },
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "start": "17:30",
+     "end": "20:30"
+    }
+   ]
+  },
+  {
+   "id": "D02",
+   "name": "Dr. Arjun Verma",
+   "specialty": "General Physician",
+   "clinic": "CarePoint Clinic",
+   "area": "Noida Sec 62",
+   "lat": 28.627,
+   "lon": 77.365,
+   "rating": 4.3,
+   "reviews": 128,
+   "fee": 300,
+   "languages": [
+    "en",
+    "hi",
+    "pa"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    },
+    {
+     "days": [
+      0,
+      2,
+      4
+     ],
+     "start": "18:00",
+     "end": "21:00"
+    }
+   ]
+  },
+  {
+   "id": "D03",
+   "name": "Dr. Kavita Rao",
+   "specialty": "General Physician",
+   "clinic": "Govt. Primary Health Centre (demo)",
+   "area": "Dadri",
+   "lat": 28.552,
+   "lon": 77.553,
+   "rating": 4.0,
+   "reviews": 64,
+   "fee": 0,
+   "languages": [
+    "hi"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D04",
+   "name": "Dr. Imran Qureshi",
+   "specialty": "General Physician",
+   "clinic": "Raj Nagar Health Clinic",
+   "area": "Ghaziabad",
+   "lat": 28.68,
+   "lon": 77.445,
+   "rating": 4.5,
+   "reviews": 205,
+   "fee": 350,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "11:00",
+     "end": "15:00"
+    },
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "18:00",
+     "end": "21:00"
+    }
+   ]
+  },
+  {
+   "id": "D05",
+   "name": "Dr. Sunita Yadav",
+   "specialty": "General Physician",
+   "clinic": "Govt. Community Health Centre (demo)",
+   "area": "Jewar",
+   "lat": 28.124,
+   "lon": 77.555,
+   "rating": 3.9,
+   "reviews": 41,
+   "fee": 0,
+   "languages": [
+    "hi"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D06",
+   "name": "Dr. Rohan Mehta",
+   "specialty": "General Physician",
+   "clinic": "eSanjeevani-style Tele OPD (demo)",
+   "area": "Tele-consult only",
+   "lat": 28.6315,
+   "lon": 77.2167,
+   "rating": 4.4,
+   "reviews": 890,
+   "fee": 0,
+   "languages": [
+    "en",
+    "hi",
+    "bn"
+   ],
+   "teleconsult": true,
+   "tele_only": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "08:00",
+     "end": "22:00"
+    }
+   ]
+  },
+  {
+   "id": "D07",
+   "name": "Dr. Priya Nair",
+   "specialty": "Cardiologist",
+   "clinic": "HeartWell Centre",
+   "area": "Noida Sec 128",
+   "lat": 28.521,
+   "lon": 77.356,
+   "rating": 4.8,
+   "reviews": 540,
+   "fee": 1000,
+   "languages": [
+    "en",
+    "hi",
+    "ta"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D08",
+   "name": "Dr. Vikram Singh",
+   "specialty": "Cardiologist",
+   "clinic": "City Heart Clinic",
+   "area": "Mayur Vihar, Delhi",
+   "lat": 28.608,
+   "lon": 77.295,
+   "rating": 4.5,
+   "reviews": 220,
+   "fee": 800,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "start": "16:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D09",
+   "name": "Dr. Ananya Bose",
+   "specialty": "Cardiologist",
+   "clinic": "Cardiac Care Institute",
+   "area": "Gurugram Sec 44",
+   "lat": 28.453,
+   "lon": 77.072,
+   "rating": 4.9,
+   "reviews": 75,
+   "fee": 1500,
+   "languages": [
+    "en",
+    "bn"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      1,
+      3,
+      5
+     ],
+     "start": "11:00",
+     "end": "15:00"
+    }
+   ]
+  },
+  {
+   "id": "D10",
+   "name": "Dr. Sameer Khan",
+   "specialty": "Neurologist",
+   "clinic": "NeuroCare Clinic",
+   "area": "Noida Sec 50",
+   "lat": 28.57,
+   "lon": 77.364,
+   "rating": 4.7,
+   "reviews": 310,
+   "fee": 900,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "13:00"
+    },
+    {
+     "days": [
+      1,
+      3
+     ],
+     "start": "17:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D11",
+   "name": "Dr. Ritu Agarwal",
+   "specialty": "Neurologist",
+   "clinic": "Brain & Spine Centre",
+   "area": "Saket, Delhi",
+   "lat": 28.5245,
+   "lon": 77.2066,
+   "rating": 4.6,
+   "reviews": 180,
+   "fee": 1200,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      2,
+      4
+     ],
+     "start": "09:00",
+     "end": "13:00"
+    }
+   ]
+  },
+  {
+   "id": "D12",
+   "name": "Dr. Harish Menon",
+   "specialty": "Pulmonologist",
+   "clinic": "BreatheEasy Chest Clinic",
+   "area": "Noida Sec 27",
+   "lat": 28.576,
+   "lon": 77.333,
+   "rating": 4.5,
+   "reviews": 260,
+   "fee": 700,
+   "languages": [
+    "en",
+    "hi",
+    "ml"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D13",
+   "name": "Dr. Neha Gupta",
+   "specialty": "Pulmonologist",
+   "clinic": "Lung Health Centre",
+   "area": "Ghaziabad",
+   "lat": 28.669,
+   "lon": 77.453,
+   "rating": 4.2,
+   "reviews": 90,
+   "fee": 500,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "17:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D14",
+   "name": "Dr. Amit Chauhan",
+   "specialty": "Gastroenterologist",
+   "clinic": "Digestive Health Clinic",
+   "area": "Noida Sec 41",
+   "lat": 28.564,
+   "lon": 77.351,
+   "rating": 4.6,
+   "reviews": 205,
+   "fee": 800,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "11:00",
+     "end": "15:00"
+    }
+   ]
+  },
+  {
+   "id": "D15",
+   "name": "Dr. Farah Siddiqui",
+   "specialty": "Gastroenterologist",
+   "clinic": "GutCare Centre",
+   "area": "Connaught Place, Delhi",
+   "lat": 28.6315,
+   "lon": 77.2167,
+   "rating": 4.4,
+   "reviews": 140,
+   "fee": 1000,
+   "languages": [
+    "en",
+    "hi",
+    "ur"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      2,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "13:00"
+    }
+   ]
+  },
+  {
+   "id": "D16",
+   "name": "Dr. Rajesh Iyer",
+   "specialty": "Endocrinologist",
+   "clinic": "Diabetes & Thyroid Clinic",
+   "area": "Noida Sec 61",
+   "lat": 28.598,
+   "lon": 77.372,
+   "rating": 4.7,
+   "reviews": 330,
+   "fee": 900,
+   "languages": [
+    "en",
+    "hi",
+    "ta"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:30",
+     "end": "13:30"
+    }
+   ]
+  },
+  {
+   "id": "D17",
+   "name": "Dr. Pooja Malhotra",
+   "specialty": "Dermatologist",
+   "clinic": "SkinFirst Clinic",
+   "area": "Noida Sec 18",
+   "lat": 28.569,
+   "lon": 77.325,
+   "rating": 4.5,
+   "reviews": 410,
+   "fee": 700,
+   "languages": [
+    "en",
+    "hi",
+    "pa"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "11:00",
+     "end": "19:00"
+    }
+   ]
+  },
+  {
+   "id": "D18",
+   "name": "Dr. Suresh Pillai",
+   "specialty": "Ophthalmologist",
+   "clinic": "ClearSight Eye Centre",
+   "area": "Noida Sec 29",
+   "lat": 28.57,
+   "lon": 77.337,
+   "rating": 4.6,
+   "reviews": 270,
+   "fee": 600,
+   "languages": [
+    "en",
+    "hi",
+    "ml"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "17:00"
+    }
+   ]
+  },
+  {
+   "id": "D19",
+   "name": "Dr. Nikhil Joshi",
+   "specialty": "Urologist",
+   "clinic": "UroCare Clinic",
+   "area": "Greater Noida",
+   "lat": 28.466,
+   "lon": 77.513,
+   "rating": 4.3,
+   "reviews": 115,
+   "fee": 700,
+   "languages": [
+    "en",
+    "hi",
+    "mr"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D20",
+   "name": "Dr. Deepak Saxena",
+   "specialty": "Emergency Medicine",
+   "clinic": "Noida Multispeciality Emergency (demo)",
+   "area": "Noida Sec 135",
+   "lat": 28.502,
+   "lon": 77.404,
+   "rating": 4.5,
+   "reviews": 190,
+   "fee": 800,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": false,
+   "emergency": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "00:00",
+     "end": "23:59"
+    }
+   ]
+  },
+  {
+   "id": "D26",
+   "name": "Dr. Gaurav Bhatia",
+   "specialty": "General Surgeon",
+   "clinic": "Sector 50 Surgical Clinic",
+   "area": "Noida Sec 50",
+   "lat": 28.572,
+   "lon": 77.36,
+   "rating": 4.4,
+   "reviews": 140,
+   "fee": 700,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    },
+    {
+     "days": [
+      0,
+      2,
+      4
+     ],
+     "start": "18:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D21",
+   "name": "Dr. Shalini Kapoor",
+   "specialty": "Psychiatrist",
+   "clinic": "MindSpace Clinic",
+   "area": "Noida Sec 44",
+   "lat": 28.556,
+   "lon": 77.338,
+   "rating": 4.8,
+   "reviews": 230,
+   "fee": 1000,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "11:00",
+     "end": "19:00"
+    }
+   ]
+  },
+  {
+   "id": "D22",
+   "name": "Dr. Aditya Rawat",
+   "specialty": "Psychiatrist",
+   "clinic": "Tele-Mental Health (demo)",
+   "area": "Tele-consult only",
+   "lat": 28.6315,
+   "lon": 77.2167,
+   "rating": 4.3,
+   "reviews": 150,
+   "fee": 0,
+   "languages": [
+    "en",
+    "hi",
+    "gu"
+   ],
+   "teleconsult": true,
+   "tele_only": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "08:00",
+     "end": "23:00"
+    }
+   ]
+  },
+  {
+   "id": "D23",
+   "name": "Dr. Lakshmi Reddy",
+   "specialty": "General Physician",
+   "clinic": "Pari Chowk Polyclinic",
+   "area": "Greater Noida",
+   "lat": 28.467,
+   "lon": 77.511,
+   "rating": 4.4,
+   "reviews": 175,
+   "fee": 250,
+   "languages": [
+    "en",
+    "hi",
+    "te"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:00",
+     "end": "13:00"
+    },
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "17:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D24",
+   "name": "Dr. Manoj Tiwari",
+   "specialty": "Cardiologist",
+   "clinic": "Greater Noida Heart & Emergency (demo)",
+   "area": "Greater Noida",
+   "lat": 28.474,
+   "lon": 77.504,
+   "rating": 4.4,
+   "reviews": 160,
+   "fee": 600,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": false,
+   "emergency": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "00:00",
+     "end": "23:59"
+    }
+   ]
+  },
+  {
+   "id": "D25",
+   "name": "Dr. Swati Bansal",
+   "specialty": "Neurologist",
+   "clinic": "Stroke-Ready Neuro Unit (demo)",
+   "area": "Ghaziabad",
+   "lat": 28.665,
+   "lon": 77.43,
+   "rating": 4.5,
+   "reviews": 120,
+   "fee": 800,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": false,
+   "emergency": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "00:00",
+     "end": "23:59"
+    }
+   ]
+  },
+  {
+   "id": "D27",
+   "name": "Dr. Ashok Bhardwaj",
+   "specialty": "ENT Specialist",
+   "clinic": "Sector 27 ENT Clinic",
+   "area": "Noida Sec 27",
+   "lat": 28.5745,
+   "lon": 77.3355,
+   "rating": 4.5,
+   "reviews": 210,
+   "fee": 600,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    },
+    {
+     "days": [
+      1,
+      3,
+      5
+     ],
+     "start": "17:00",
+     "end": "20:00"
+    }
+   ]
+  },
+  {
+   "id": "D28",
+   "name": "Dr. Nisha Arora",
+   "specialty": "ENT Specialist",
+   "clinic": "Ear Nose Throat Centre",
+   "area": "Ghaziabad",
+   "lat": 28.672,
+   "lon": 77.438,
+   "rating": 4.3,
+   "reviews": 95,
+   "fee": 400,
+   "languages": [
+    "en",
+    "hi",
+    "pa"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "11:00",
+     "end": "15:00"
+    }
+   ]
+  },
+  {
+   "id": "D29",
+   "name": "Dr. Karan Mehra",
+   "specialty": "Orthopaedist",
+   "clinic": "Bone & Joint Clinic",
+   "area": "Noida Sec 62",
+   "lat": 28.625,
+   "lon": 77.362,
+   "rating": 4.6,
+   "reviews": 280,
+   "fee": 800,
+   "languages": [
+    "en",
+    "hi"
+   ],
+   "teleconsult": true,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "10:00",
+     "end": "14:00"
+    }
+   ]
+  },
+  {
+   "id": "D30",
+   "name": "Dr. Ritu Saini",
+   "specialty": "Orthopaedist",
+   "clinic": "Govt. District Hospital OPD (demo)",
+   "area": "Greater Noida",
+   "lat": 28.47,
+   "lon": 77.5,
+   "rating": 4.0,
+   "reviews": 70,
+   "fee": 0,
+   "languages": [
+    "hi"
+   ],
+   "teleconsult": false,
+   "sessions": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "start": "09:00",
+     "end": "13:00"
+    }
+   ]
+  }
+ ],
+ "locations": [
+  {
+   "id": "amity",
+   "name": "Amity University, Noida Sec 125",
+   "lat": 28.544,
+   "lon": 77.333
+  },
+  {
+   "id": "cp",
+   "name": "Connaught Place, New Delhi",
+   "lat": 28.6315,
+   "lon": 77.2167
+  },
+  {
+   "id": "ghaziabad",
+   "name": "Raj Nagar, Ghaziabad",
+   "lat": 28.68,
+   "lon": 77.445
+  },
+  {
+   "id": "dadri",
+   "name": "Dadri (semi-rural)",
+   "lat": 28.552,
+   "lon": 77.553
+  },
+  {
+   "id": "jewar",
+   "name": "Village near Jewar (rural)",
+   "lat": 28.1,
+   "lon": 77.58
+  }
+ ]
+}

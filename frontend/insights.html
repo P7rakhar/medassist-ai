@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedAssist Insights</title>
+  <meta name="description" content="Anonymised triage statistics and outbreak alerts for health officers">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231C2554'/%3E%3Cpath d='M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 28px 64px; }
+    .wrap h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+    .lead { color: var(--ink-2); margin-top: 6px; max-width: 70ch; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+    .toolbar select { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 6px 10px; background: var(--surface); }
+    .toolbar .primary { margin-left: 0; font-size: 15px; padding: 7px 14px; }
+    .sim-note { font-size: 14px; color: var(--mod); background: var(--mod-bg); border-radius: var(--radius-s); padding: 6px 12px; }
+    section { margin-top: 30px; }
+    section > h2 { font-size: 20px; font-weight: 700; }
+    .alert { border: 2px solid var(--high); background: var(--surface); border-radius: var(--radius-m); padding: 16px 18px; margin-top: 12px;
+             display: grid; grid-template-columns: minmax(240px, 1fr) 2fr; gap: 18px; align-items: center; }
+    .alert h3 { font-size: 22px; font-weight: 800; color: var(--high); line-height: 1.15; }
+    .alert p { color: var(--ink-2); margin-top: 6px; }
+    .alert .big { font-size: 15px; color: var(--ink); }
+    .chart-cap { font-size: 13px; color: var(--ink-2); margin: 0 0 4px; }
+    .no-alerts { color: var(--ink-2); margin-top: 10px; }
+    .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
+    .tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 14px 16px; }
+    .tile .v { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .tile .k { font-size: 14px; color: var(--ink-2); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .chart { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 14px 14px 6px; margin-top: 12px; }
+    .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart .bar { fill: var(--ink); }
+    .chart .bar:hover, .chart .bar:focus { fill: #3A4C9C; outline: none; }
+    .chart .bar.hot { fill: var(--high); }
+    .chart .bar.hot:hover, .chart .bar.hot:focus { fill: #D2493F; }
+    .chart .grid line { stroke: var(--line); stroke-width: 1; }
+    .chart text { font-size: 12px; fill: var(--ink-3); font-family: var(--font); }
+    .tip { position: absolute; pointer-events: none; background: var(--ink); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 13px;
+           line-height: 1.35; white-space: nowrap; transform: translate(-50%, -110%); opacity: 0; z-index: 2; }
+    .tip strong { font-size: 16px; display: block; }
+    .hbars { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+    .hbars li { display: grid; grid-template-columns: 1fr 44px; gap: 2px 10px; align-items: center; font-size: 15px; }
+    .hbars .track { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--tint); overflow: hidden; }
+    .hbars .track i { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
+    .hbars .n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    table.areas { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; background: var(--surface); }
+    table.areas th, table.areas td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    table.areas td.num, table.areas th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    details.table-view { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
+    details.table-view table { border-collapse: collapse; margin-top: 6px; }
+    details.table-view td, details.table-view th { padding: 2px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+    details.table-view td:first-child, details.table-view th:first-child { text-align: left; }
+    .privacy { margin-top: 30px; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 12px; max-width: 80ch; }
+    @media (max-width: 900px) {
+      .wrap { padding: 20px 16px 48px; }
+      .tiles { grid-template-columns: repeat(2, 1fr); }
+      .grid2, .alert { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#fff"/><path d="M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z" fill="#1C2554"/></svg>
+      <div><strong>MedAssist Insights</strong><span>For district health officers</span></div>
+    </div>
+    <div class="controls"><a class="nav-link" href="index.html">Patient app</a></div>
+  </header>
+
+  <main class="wrap">
+    <h1>What patients are reporting</h1>
+    <p class="lead">Every MedAssist check adds one anonymised record. Patterns across many patients show where illness is rising before clinics fill up.</p>
+
+    <div class="toolbar">
+      <label>Period
+        <select id="days"><option value="7">Last 7 days</option><option value="14" selected>Last 14 days</option><option value="30">Last 30 days</option></select>
+      </label>
+      <button id="seed" class="primary" type="button">Load simulated demo data</button>
+      <button id="clear" class="ghost" type="button">Remove simulated data</button>
+      <span id="sim-note" class="sim-note" hidden></span>
+    </div>
+
+    <section aria-labelledby="alerts-h">
+      <h2 id="alerts-h">Outbreak alerts</h2>
+      <div id="alerts"></div>
+    </section>
+
+    <section aria-labelledby="tiles-h">
+      <h2 id="tiles-h">Cases by risk level</h2>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <section aria-labelledby="daily-h">
+      <h2 id="daily-h">Checks per day</h2>
+      <div class="chart" id="daily"></div>
+    </section>
+
+    <div class="grid2">
+      <section aria-labelledby="cond-h"><h2 id="cond-h">Most likely conditions</h2><ul class="hbars" id="conditions"></ul></section>
+      <section aria-labelledby="sym-h"><h2 id="sym-h">Most reported symptoms</h2><ul class="hbars" id="symptoms"></ul></section>
+    </div>
+
+    <section aria-labelledby="areas-h">
+      <h2 id="areas-h">By area</h2>
+      <table class="areas"><thead><tr><th>Area</th><th class="num">Checks</th><th>Top conditions</th></tr></thead><tbody id="areas"></tbody></table>
+    </section>
+
+    <p class="privacy">Privacy: records hold only time, area, language, risk level, top condition and symptom codes. No names, no free text, and locations are rounded to about 1 km. Alerts compare the last 3 days in an area with that area's own previous 11 days and fire at 5 or more cases and at least 3 times the expected number. Simulated records are flagged and can be removed.</p>
+  </main>
+
+  <script>
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const LEVELS = [["HIGH", "High risk", "high"], ["MODERATE", "Moderate risk", "moderate"], ["LOW", "Low risk", "low"], ["UNCERTAIN", "Needs review", "uncertain"]];
+  const fmtDay = (iso) => new Date(iso + "T00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+
+  async function load() {
+    const res = await fetch(`/api/insights?days=${$("days").value}`);
+    render(await res.json());
+  }
+
+  function render(d) {
+    $("sim-note").hidden = !d.simulated;
+    $("sim-note").textContent = `Includes ${d.simulated} simulated records`;
+
+    // alerts
+    const A = $("alerts"); A.replaceChildren();
+    if (!d.alerts.length) A.append(el("p", "no-alerts", "No unusual clusters in this period."));
+    d.alerts.forEach((a) => {
+      const card = el("div", "alert");
+      const left = el("div");
+      left.append(el("h3", null, `Possible ${a.name.en.toLowerCase()} cluster in ${a.area}`));
+      const p = el("p", "big"); p.textContent = `${a.recent_cases} cases in the last ${a.window_days} days, against about ${a.expected} expected (${a.ratio}× normal).`;
+      left.append(p, el("p", null, "Suggested action: alert local ASHA workers and the PHC, check for mosquito breeding sites, and send the advisory to patients in this area."));
+      const chart = el("div", "chart");
+      card.append(left, chart); A.append(card);
+      barChart(chart, a.daily.map((x, i) => ({ label: fmtDay(x.date), value: x.cases, hot: i >= a.daily.length - a.window_days,
+        tip: [`${x.cases} case${x.cases === 1 ? "" : "s"}`, fmtDay(x.date)] })), { height: 150, title: `Daily ${a.name.en} cases in ${a.area}` });
+      chart.insertBefore(el("p", "chart-cap", `Daily ${a.name.en.toLowerCase()} cases in ${a.area}. Red: the last ${a.window_days} days.`), chart.firstChild);
+    });
+
+    // tiles
+    const T = $("tiles"); T.replaceChildren();
+    const total = el("div", "tile"); total.append(el("div", "v", d.total), el("div", "k", `Checks in ${d.window_days} days`)); T.append(total);
+    LEVELS.forEach(([key, label, cls]) => {
+      const t = el("div", "tile"); const k = el("div", "k"); k.append(el("i", `dot ${cls}`), document.createTextNode(label));
+      t.append(el("div", "v", d.by_level[key] || 0), k); T.append(t);
+    });
+
+    // daily chart
+    barChart($("daily"), d.series.map((x) => {
+      const n = x.LOW + x.MODERATE + x.HIGH + x.UNCERTAIN;
+      return { label: fmtDay(x.date), value: n, tip: [`${n} checks`, fmtDay(x.date), `High ${x.HIGH} · Moderate ${x.MODERATE} · Low ${x.LOW} · Review ${x.UNCERTAIN}`] };
+    }), { height: 220, title: "Checks per day", table: d.series });
+
+    hbars($("conditions"), d.top_conditions.map((c) => [c.name.en, c.cases]));
+    hbars($("symptoms"), d.top_symptoms.map((s) => [s.en, s.cases]));
+
+    const tb = $("areas"); tb.replaceChildren();
+    d.areas.forEach((a) => {
+      const tr = el("tr"); tr.append(el("td", null, a.area), el("td", "num", a.total), el("td", null, a.top.map((c) => `${c.name.en} (${c.cases})`).join(", ")));
+      tb.append(tr);
+    });
+  }
+
+  function hbars(ul, rows) {
+    ul.replaceChildren();
+    if (!rows.length) { ul.append(el("li", null, "No data yet.")); return; }
+    const max = Math.max(...rows.map((r) => r[1]));
+    rows.forEach(([label, n]) => {
+      const li = el("li"); const track = el("span", "track"); const fill = el("i"); fill.style.width = `${(n / max) * 100}%`; track.append(fill);
+      li.append(el("span", null, label), el("span", "n", n), track); ul.append(li);
+    });
+  }
+
+  /* Single-series bar chart: thin bars, 2px gaps, 4px rounded tops anchored to a zero baseline,
+     recessive grid, per-bar hover/focus tooltip (values lead) and a table view. */
+  function barChart(host, data, { height = 200, title = "", table = null } = {}) {
+    host.replaceChildren();
+    const W = 720, H = height, pad = { l: 30, r: 6, t: 10, b: 24 };
+    const max = Math.max(1, ...data.map((d) => d.value));
+    const step = niceStep(max), top = Math.ceil(max / step) * step;
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", title);
+    const y = (v) => pad.t + (H - pad.t - pad.b) * (1 - v / top);
+    const g = document.createElementNS(ns, "g"); g.setAttribute("class", "grid");
+    for (let v = 0; v <= top; v += step) {
+      const ln = document.createElementNS(ns, "line"); ln.setAttribute("x1", pad.l); ln.setAttribute("x2", W - pad.r); ln.setAttribute("y1", y(v)); ln.setAttribute("y2", y(v)); g.append(ln);
+      const tx = document.createElementNS(ns, "text"); tx.setAttribute("x", pad.l - 6); tx.setAttribute("y", y(v) + 4); tx.setAttribute("text-anchor", "end"); tx.textContent = v; g.append(tx);
+    }
+    svg.append(g);
+    const slot = (W - pad.l - pad.r) / data.length, bw = Math.max(4, Math.min(28, slot - 2));
+    const tip = el("div", "tip"); host.append(tip);
+    data.forEach((d, i) => {
+      const x = pad.l + i * slot + (slot - bw) / 2, h = y(0) - y(d.value), r = Math.min(4, h / 2, bw / 2);
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute("d", h <= 0 ? `M${x},${y(0)}h${bw}` :
+        `M${x},${y(0)} V${y(d.value) + r} Q${x},${y(d.value)} ${x + r},${y(d.value)} H${x + bw - r} Q${x + bw},${y(d.value)} ${x + bw},${y(d.value) + r} V${y(0)} Z`);
+      path.setAttribute("class", "bar" + (d.hot ? " hot" : "")); path.setAttribute("tabindex", "0");
+      path.setAttribute("aria-label", `${d.label}: ${d.value}`);
+      // hit target wider than the painted bar
+      const hit = document.createElementNS(ns, "rect"); hit.setAttribute("x", pad.l + i * slot); hit.setAttribute("y", pad.t); hit.setAttribute("width", slot); hit.setAttribute("height", H - pad.t - pad.b); hit.setAttribute("fill", "transparent");
+      const show = () => {
+        tip.replaceChildren(el("strong", null, d.tip[0]), ...d.tip.slice(1).map((t) => el("div", null, t)));
+        const box = host.getBoundingClientRect(), sb = svg.getBoundingClientRect();
+        tip.style.left = `${(sb.left - box.left) + (x + bw / 2) / W * sb.width}px`;
+        tip.style.top = `${(sb.top - box.top) + y(d.value) / H * sb.height}px`;
+        tip.style.opacity = 1;
+      };
+      const hide = () => (tip.style.opacity = 0);
+      [hit, path].forEach((n) => { n.addEventListener("pointermove", show); n.addEventListener("pointerleave", hide); });
+      path.addEventListener("focus", show); path.addEventListener("blur", hide);
+      svg.append(hit, path);
+      if (data.length <= 16 && (i % Math.ceil(data.length / 8) === 0 || i === data.length - 1)) {
+        const tx = document.createElementNS(ns, "text"); tx.setAttribute("x", x + bw / 2); tx.setAttribute("y", H - 6); tx.setAttribute("text-anchor", "middle"); tx.textContent = d.label; svg.append(tx);
+      }
+    });
+    host.append(svg);
+    const det = el("details", "table-view"); det.append(el("summary", null, "Show as table"));
+    const t = el("table"); const head = el("tr"); head.append(el("th", null, "Date"), el("th", null, "Count")); t.append(head);
+    data.forEach((d, i) => { const r = el("tr"); r.append(el("td", null, d.label), el("td", null, table ? `${d.value} (H ${table[i].HIGH}, M ${table[i].MODERATE}, L ${table[i].LOW}, R ${table[i].UNCERTAIN})` : d.value)); t.append(r); });
+    det.append(t); host.append(det);
+  }
+
+  function niceStep(max) {
+    const raw = max / 4, mag = 10 ** Math.floor(Math.log10(raw)), n = raw / mag;
+    return Math.max(1, (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag);
+  }
+
+  $("days").addEventListener("change", load);
+  $("seed").addEventListener("click", async () => { await fetch("/api/insights/demo-data", { method: "POST" }); load(); });
+  $("clear").addEventListener("click", async () => { await fetch("/api/insights/demo-data", { method: "DELETE" }); load(); });
+  load();
+  </script>
+</body>
+</html>
