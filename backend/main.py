@@ -15,14 +15,17 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import graph_neo4j, llm
+from fastapi.responses import JSONResponse
+
+from . import fhir, graph_neo4j, llm
+from .labels import agreement, labelled_cases
 from .db import DEFAULT_PATH, Store
 from .matching import WEIGHTS
 from .pipeline import MedAssistEngine
 
 app = FastAPI(
     title="MedAssist AI API",
-    version="0.5.0",
+    version="0.6.0",
     description="Team Neuraxis — multilingual AI symptom triage with ConText NLP, a medical knowledge graph, "
                 "information-gain clarifying questions, explainable doctor matching and a doctor handoff note. "
                 "Global Innoventure Hackathon 2026, Problem Statement 5.",
@@ -63,6 +66,12 @@ class BookRequest(BaseModel):
 
 class StatusRequest(BaseModel):
     status: str = Field(..., pattern="^(waiting|seen)$")
+
+
+class ReviewRequest(BaseModel):
+    level: str = Field(..., pattern="^(LOW|MODERATE|HIGH)$", description="The doctor's own triage level")
+    condition: str | None = Field(None, max_length=80, description="The doctor's diagnosis (optional)")
+    comment: str | None = Field(None, max_length=300)
 
 
 def _with_doctor(b: dict) -> dict:
@@ -145,6 +154,36 @@ def booking_status(booking_id: str, req: StatusRequest):
     if booking_id not in engine.scheduler.bookings:
         raise HTTPException(404, "Booking not found")
     return _with_doctor(engine.scheduler.set_status(booking_id, req.status))
+
+
+@app.post("/api/bookings/{booking_id}/review", tags=["doctor view"])
+def booking_review(booking_id: str, req: ReviewRequest):
+    """The doctor confirms or corrects the AI's triage. Each review becomes a doctor-labelled case."""
+    if booking_id not in engine.scheduler.bookings:
+        raise HTTPException(404, "Booking not found")
+    return _with_doctor(engine.scheduler.set_review(booking_id, req.level, (req.condition or "").strip() or None,
+                                                    (req.comment or "").strip() or None))
+
+
+@app.get("/api/labelled-cases", tags=["doctor view"])
+def labelled():
+    """Doctor-labelled cases from real use (no patient names) and how often the AI agreed with the doctor."""
+    cases = labelled_cases(list(engine.scheduler.bookings.values()))
+    return {"stats": agreement(cases), "cases": cases}
+
+
+@app.get("/api/bookings/{booking_id}/fhir", tags=["interoperability"])
+def booking_fhir(booking_id: str):
+    """The booking's pre-consultation note as an HL7 FHIR R4 document Bundle, shaped like ABDM's OPConsultRecord."""
+    b = engine.scheduler.bookings.get(booking_id)
+    if not b:
+        raise HTTPException(404, "Booking not found")
+    try:
+        bundle = fhir.booking_bundle(b, engine.doctor_by_id.get(b["doctor_id"], {}))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+    return JSONResponse(bundle, media_type="application/fhir+json",
+                        headers={"Content-Disposition": f'attachment; filename="medassist-{booking_id}-fhir.json"'})
 
 
 URGENCY = {"HIGH": 0, "UNCERTAIN": 1, "MODERATE": 2, "LOW": 3, None: 4}

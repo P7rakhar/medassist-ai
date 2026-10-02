@@ -20,6 +20,7 @@ from .clarify import next_questions
 from .handoff import build_note
 from .knowledge_graph import KnowledgeGraph
 from .matching import rank_doctors
+from .model import SecondOpinion
 from .nlp import Mention, SymptomExtractor, detect_language, normalise
 from .scheduler import SlotScheduler
 from .triage import assess
@@ -46,6 +47,7 @@ class MedAssistEngine:
         self.store = store                      # optional SQLite store (db.py): case log + bookings
         self.scheduler = SlotScheduler(store=store)
         self.graph_backend = "in-memory"
+        self.second = SecondOpinion()            # trained model (training/train_model.py); optional
 
     def nearest_area(self, lat: float, lon: float) -> str:
         from .matching import haversine_km
@@ -105,7 +107,7 @@ class MedAssistEngine:
             "family_history": ext.family_history, "risk_factors": [r["id"] for r in risk_factors],
             "conditions_named": ext.condition_mentions, "context_triggers": ext.triggers,
             "duration_days": duration, "severity": severity, "pain_score": ext.pain_score,
-            "temperature_f": ext.temperature_f, "age": age, "not_understood": ext.unrecognised,
+            "temperature_f": ext.temperature_f, "spo2": ext.spo2, "age": age, "not_understood": ext.unrecognised,
             "methods": sorted({m.method for m in ext.mentions}), "llm": llm_note,
         })
 
@@ -114,7 +116,15 @@ class MedAssistEngine:
         all_candidates = self.kg.query(weights, absent, top_k=None)
         conditions = [c for c in all_candidates[:3] if c.raw >= 0.45 * all_candidates[0].raw] if all_candidates else []
         flags = self.kg.red_flags(present, [r["id"] for r in risk_factors])
+        second = self.second.predict(text, weights, [c.id for c in conditions]) if present else None
+        if second and second.get("available"):
+            for t in second["top"]:
+                kg_name = self.kg.conditions.get(t["kg_id"], {}).get("name") if t["kg_id"] else None
+                nice = t["label"][0].upper() + t["label"][1:]
+                t["name"] = {"en": kg_name["en"] if kg_name else nice, "hi": kg_name["hi"] if kg_name else nice}
         step(5, "Knowledge graph query", t0, {
+            "second_opinion": [f"{t['label']} {round(t['probability'] * 100)}%" for t in second["top"]]
+                              if second and second.get("available") else [],
             "candidates_scored": len(all_candidates),
             "candidates": [{"id": c.id, "likelihood": c.likelihood, "coverage": c.coverage} for c in conditions],
             "red_flags": [f["id"] for f in flags],
@@ -122,7 +132,7 @@ class MedAssistEngine:
 
         # 6. Risk scoring
         t0 = time.perf_counter()
-        triage = assess(present, conditions, flags, duration, severity, age, ext.temperature_f, risk_factors)
+        triage = assess(present, conditions, flags, duration, severity, age, ext.temperature_f, risk_factors, ext.spo2)
         step(6, "Risk scoring", t0, {"level": triage["level"], "score": triage["score"]})
 
         # 7. Triage & recommendation (doctor matching)
@@ -159,7 +169,7 @@ class MedAssistEngine:
             "conditions_named": [{**c, "name": cond_label(c["id"])} for c in ext.condition_mentions],
             "not_understood": ext.unrecognised,
             "duration_days": duration, "severity": severity, "pain_score": ext.pain_score,
-            "temperature_f": ext.temperature_f, "age": age,
+            "temperature_f": ext.temperature_f, "spo2": ext.spo2, "age": age,
             "conditions": [{"id": c.id, "name": c.name, "specialty": c.specialty,
                             "specialty_hi": self.kg.specialties[c.specialty]["hi"],
                             "likelihood": c.likelihood, "coverage": c.coverage, "icd10": c.icd10,
@@ -167,6 +177,7 @@ class MedAssistEngine:
                             "matched": [lab(s) for s in c.matched], "advice": c.advice} for c in conditions],
             "triage": triage,
             "specialty": {"en": top_specialty, "hi": self.kg.specialties[top_specialty]["hi"]},
+            "second_opinion": second if second and second.get("available") else None,
             "questions": questions,
             "follow_up": [q["label"] | {"id": q["id"]} for q in questions if q["type"] == "symptom"],  # v1 field
             "answers": answers, "slots": slots,

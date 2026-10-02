@@ -73,6 +73,16 @@ class SlotScheduler:
             self.store.save_booking(booking)
         return booking
 
+    def set_review(self, booking_id: str, level: str, condition: str | None, comment: str | None,
+                   now: datetime | None = None) -> dict:
+        b = self.bookings[booking_id]
+        when = (now or datetime.now()).isoformat(timespec="seconds")
+        b.update({"doctor_level": level, "doctor_condition": condition, "doctor_comment": comment,
+                  "reviewed_at": when, "status": "seen"})
+        if self.store:
+            self.store.set_review(booking_id, level, condition, comment, when)
+        return b
+
     def set_status(self, booking_id: str, status: str) -> dict:
         b = self.bookings[booking_id]
         b["status"] = status

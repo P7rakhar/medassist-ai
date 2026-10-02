@@ -29,14 +29,18 @@ HEAD = {
            "family": "Family history", "details": "Details", "duration": "duration", "days": "days", "hours": "hours",
            "severity": "severity", "temp": "temperature", "age": "age", "pain": "pain", "answers": "Answers to follow-up questions",
            "yes": "yes", "no": "no", "causes": "Possible causes to consider", "specialty": "Suggested specialty",
-           "words": "Patient's own words", "asked": "(asked)", "generated": "Generated", "emergency": "EMERGENCY: call 112 / 108 now",
+           "words": "Patient's own words", "asked": "(asked)",
+           "so": "Trained model's second opinion", "so_agree": "agrees with the knowledge graph",
+           "so_differ": "differs from the knowledge graph, please check", "so_outside": "outside our knowledge graph", "so_unsure": "not confident", "generated": "Generated", "emergency": "EMERGENCY: call 112 / 108 now",
            "action": "Advice given"},
     "hi": {"title": "MedAssist AI: डॉक्टर के लिए लक्षणों का सारांश", "triage": "ट्राइएज", "symptoms": "लक्षण",
            "possible": "(शायद)", "denied": "इनसे मना किया", "past": "सिर्फ़ पहले था", "risk": "पहले से बीमारी",
            "family": "परिवार में", "details": "विवरण", "duration": "अवधि", "days": "दिन", "hours": "घंटे",
            "severity": "गंभीरता", "temp": "तापमान", "age": "उम्र", "pain": "दर्द", "answers": "सवालों के जवाब",
            "yes": "हां", "no": "नहीं", "causes": "संभावित कारण", "specialty": "सुझाई गई विशेषज्ञता",
-           "words": "मरीज़ के अपने शब्द", "asked": "(पूछा गया)", "generated": "बनाया गया", "emergency": "आपातकाल: अभी 112 / 108 पर कॉल करें",
+           "words": "मरीज़ के अपने शब्द", "asked": "(पूछा गया)",
+           "so": "प्रशिक्षित मॉडल की दूसरी राय", "so_agree": "नॉलेज ग्राफ़ से मेल खाती है",
+           "so_differ": "नॉलेज ग्राफ़ से अलग है, कृपया जांचें", "so_outside": "हमारे नॉलेज ग्राफ़ से बाहर", "so_unsure": "पक्की नहीं", "generated": "बनाया गया", "emergency": "आपातकाल: अभी 112 / 108 पर कॉल करें",
            "action": "दी गई सलाह"},
 }
 
@@ -65,10 +69,14 @@ def build_note(result: dict, text: str, now: datetime | None = None) -> dict:
         "past": [{"id": s["id"], "en": s["en"], "hi": s["hi"]} for s in result["historical"]],
         "risk_factors": [r["label"] for r in result["risk_factors"]],
         "family_history": [{"en": f.get("en", f["id"]), "hi": f.get("hi", f["id"])} for f in result["family_history"]],
-        "details": {k: result.get(k) for k in ("duration_days", "severity", "temperature_f", "age", "pain_score")},
+        "details": {k: result.get(k) for k in ("duration_days", "severity", "temperature_f", "spo2", "age", "pain_score")},
         "possible_conditions": [{"en": c["name"]["en"], "hi": c["name"]["hi"], "icd10": c["icd10"],
                                  "likelihood": c["likelihood"]} for c in result["conditions"]],
         "specialty": result["specialty"],
+        "second_opinion": ({"en": result["second_opinion"]["top"][0]["name"]["en"], "hi": result["second_opinion"]["top"][0]["name"]["hi"],
+                            "probability": result["second_opinion"]["top"][0]["probability"],
+                            "agrees": result["second_opinion"]["agrees"],
+                            "confident": result["second_opinion"]["confident"]} if result.get("second_opinion") else None),
     }
     note["text"] = {"en": to_text(note, "en"), "hi": to_text(note, "hi")}
     return note
@@ -108,6 +116,8 @@ def to_text(note: dict, lang: str = "en") -> str:
         bits.append(f"{h['severity']} {SEVERITY[lang][d['severity']]}")
     if d["temperature_f"] is not None:
         bits.append(f"{h['temp']} {d['temperature_f']}°F")
+    if d.get("spo2") is not None:
+        bits.append(f"SpO2 {d['spo2']}%")
     if d["age"] is not None:
         bits.append(f"{h['age']} {d['age']}")
     if d["pain_score"] is not None:
@@ -117,6 +127,11 @@ def to_text(note: dict, lang: str = "en") -> str:
     if note["possible_conditions"]:
         lines.append(f"{h['causes']}: " + ", ".join(f"{_lab(c, lang)}" + (f" ({c['icd10']})" if c["icd10"] else "")
                                                    for c in note["possible_conditions"]))
+    so = note.get("second_opinion")
+    if so:
+        verdict = (h["so_unsure"] if not so.get("confident", True)
+                   else {True: h["so_agree"], False: h["so_differ"], None: h["so_outside"]}[so["agrees"]])
+        lines.append(f"{h['so']}: {_lab(so, lang)} ({round(so['probability'] * 100)}%), {verdict}")
     lines.append(f"{h['specialty']}: {_lab(note['specialty'], lang)}")
     if note["patient_words"]:
         lines.append(f"{h['words']}: “{note['patient_words']}”")

@@ -152,6 +152,13 @@ WEEKDAYS = {"monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3, "friday": 
             "सोमवार": 0, "मंगलवार": 1, "बुधवार": 2, "गुरुवार": 3, "शुक्रवार": 4, "शनिवार": 5, "रविवार": 6}
 _WEEKDAY_RE = re.compile(r"(?:since|from)\s+(?:last\s+)?(" + "|".join(WEEKDAYS) + r")|(" + "|".join(WEEKDAYS) + r")\s+(?:se|से)")
 _TEMP_RE = re.compile(r"\b(\d{2,3}(?:\.\d)?)\s*(?:°|deg|degree|degrees|डिग्री)?\s*(f|fahrenheit|c|celsius)?\b")
+# A bare number only counts as a temperature next to a temperature word ("fever of 102", "temperature 38.5",
+# "102 bukhar"), never as an age, heart rate or blood pressure ("40-year-old", "105 bpm").
+_TEMP_BEFORE = re.compile(r"(?:temperature|temp|fever|fevers|febrile|bukhar|bukhaar|taap|बुखार|ताप|तापमान)\s*(?:of|to|is|was|as high as|=|:|hai|ka|का)?\s*(?:about|around|upto|up to)?\s*$")
+_TEMP_AFTER = re.compile(r"^\s*(?:°|deg|degree|degrees|डिग्री)?\s*(?:f|c)?\s*(?:fever|bukhar|bukhaar|बुखार|ka bukhar|का बुखार)")
+_NOT_TEMP_AFTER = re.compile(r"^\s*(?:year|years|yr|yrs|month|months|week|weeks|day|days|hour|hours|bpm|beats|mm|mmhg|percent|%|kg|cm|saal|din|साल|दिन|breaths|per)")
+# Oxygen saturation from a pulse oximeter: "SpO2 91%", "oxygen saturation of 92 percent", "oxygen level 90".
+_SPO2_RE = re.compile(r"(?:spo2|sp o2|spo 2|oxygen saturation|o2 saturation|o2 sat|oxygen sat|saturation|oxygen level|oxygen)\D{0,25}?(\d{2,3})\s*(?:%|percent)?")
 _PAIN_SCORE_RE = re.compile(r"\b(\d{1,2})\s*(?:outof|out of|on|me se|mein se|में से)\s*10\b")
 # Age needs explicit context ("I am 65", "65 years old", "65 saal ka") so that
 # "headache for 2 years" is read as a duration, not an age.
@@ -200,6 +207,7 @@ class Extraction:
     severity: str = "normal"              # "mild" | "normal" | "severe"
     pain_score: int | None = None
     temperature_f: float | None = None
+    spo2: int | None = None                       # pulse-oximeter oxygen saturation, %
     age: int | None = None
     tokens: list[str] = field(default_factory=list)
     unrecognised: list[str] = field(default_factory=list)
@@ -339,6 +347,8 @@ class SymptomExtractor:
 
     # ---- main entry -----------------------------------------------------
     def extract(self, text: str, now: datetime | None = None) -> Extraction:
+        # "confused about which medicine" is uncertainty, not the medical sign "confusion".
+        text = re.sub(r"\bconfused\s+(about|which|whether|if|regarding|by|with)\b", r"unsure \1", text, flags=re.I)
         out = Extraction()
         norm_full = normalise(text)
         out.tokens = norm_full.split()
@@ -390,17 +400,29 @@ class SymptomExtractor:
                 out.mentions.append(Mention(parent, m.text, method="rule", uncertain=m.uncertain))
 
         # Temperature, e.g. "fever of 103 F", "38.9 c", "102 बुखार".
-        has_fever_word = any(m.symptom_id in ("fever", "high_fever") for m in out.mentions)
-        for num, unit in _TEMP_RE.findall(norm_full):
+        for tm in _TEMP_RE.finditer(norm_full):
+            num, unit = tm.group(1), tm.group(2) or ""
+            before, after = norm_full[max(0, tm.start() - 40):tm.start()], norm_full[tm.end():tm.end() + 20]
+            if _NOT_TEMP_AFTER.match(norm_full[tm.start() + len(num):tm.start() + len(num) + 12]):
+                continue
+            if not unit and not (_TEMP_BEFORE.search(before) or _TEMP_AFTER.match(after)):
+                continue
             val = float(num)
             temp_f = val * 9 / 5 + 32 if (unit in ("c", "celsius") or 35 <= val <= 43) else val
-            if 95 <= temp_f <= 110 and (unit or has_fever_word):
+            if 95 <= temp_f <= 110:
                 out.temperature_f = round(temp_f, 1)
                 if temp_f >= 99.5:
                     out.mentions.append(Mention("fever", f"{num}{unit}", method="rule"))
                 if temp_f >= 102:
                     out.mentions.append(Mention("high_fever", f"{num}{unit}", method="rule"))
                 break
+
+        m = _SPO2_RE.search(norm_full)
+        if m and 50 <= int(m.group(1)) <= 100:
+            out.spo2 = int(m.group(1))
+        if re.search(r"\bafebrile\b", norm_full):              # clinical shorthand for "no fever"
+            out.mentions.append(Mention("fever", "afebrile", negated=True, method="rule"))
+            out.unrecognised = [w for w in out.unrecognised if w != "afebrile"]
 
         m = _PAIN_SCORE_RE.search(norm_full)
         if m and 0 <= int(m.group(1)) <= 10:
