@@ -85,10 +85,34 @@
         <p id="mic-status" class="mic-status" aria-live="polite"></p>
       </div>
 
+      <div id="ctx-slot-1">
+        <div id="ctx-bar" class="doc-controls ctx-bar">
+          <label class="field-inline light">
+            <span data-i18n="location">Location</span>
+            <select id="location"></select>
+          </label>
+          <div class="seg seg-light" role="group" aria-label="Consultation mode">
+            <button type="button" data-mode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
+            <button type="button" data-mode="video" data-i18n="video">Video consult</button>
+          </div>
+        </div>
+      </div>
+
       <div class="examples">
         <span class="examples-label" data-i18n="tryExample">Or tap an example</span>
         <div id="examples" class="chips"></div>
       </div>
+
+      <ul class="features" aria-label="What MedAssist can do">
+        <li data-i18n="f1">🎙 Voice in English, Hindi, Hinglish</li>
+        <li data-i18n="f2">🧠 Understands “no fever”, “maybe”, “last year”</li>
+        <li data-i18n="f3">🚨 20 NHS emergency warning-sign rules</li>
+        <li data-i18n="f4">📊 Trained model as a second opinion</li>
+        <li data-i18n="f5">🩺 Doctor matching, booking and video consult</li>
+        <li data-i18n="f6">📄 Doctor's note: print, WhatsApp, FHIR (ABDM format)</li>
+        <li data-i18n="f7">🗺 Outbreak alerts for health officers</li>
+        <li data-i18n="f8">♿ Simple mode: big buttons, read aloud</li>
+      </ul>
     </section>
 
     <!-- Step 2: one question at a time -->
@@ -182,16 +206,7 @@
         <h2 id="doc-h" tabindex="-1" data-i18n="doctors">Recommended doctors</h2>
         <span id="doc-specialty" class="pill"></span>
       </div>
-      <div class="doc-controls">
-        <label class="field-inline light">
-          <span data-i18n="location">Location</span>
-          <select id="location"></select>
-        </label>
-        <div class="seg seg-light" role="group" aria-label="Consultation mode">
-          <button type="button" data-mode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
-          <button type="button" data-mode="video" data-i18n="video">Video consult</button>
-        </div>
-      </div>
+      <div id="ctx-slot-4"></div>
       <details class="acc acc-small">
         <summary data-i18n="rankHow">How we rank doctors</summary>
         <div class="acc-body">

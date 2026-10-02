@@ -491,3 +491,10 @@ details.acc-small > summary { font-size: 15px; padding: 9px 14px; }
 @media (prefers-reduced-motion: reduce) {
   .step.enter-fwd, .step.enter-back, .q-card.q-in, #step-3.enter-fwd .verdict, details.acc[open] .acc-body, #step-4 .doctors > li { animation: none !important; }
 }
+
+.ctx-bar { margin-top: 14px; }
+.features { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px;
+  border-top: 1px solid var(--line); padding-top: 18px; font-size: 14px; color: var(--ink-2); }
+.features li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 7px 10px; }
+@media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
+.simple .features { display: none; }

@@ -67,6 +67,9 @@ const T = {
     stopFirst: "Press Stop when you have finished speaking.", doneListening: "Got it. Check the text, then press Check symptoms.",
     exampleChosen: "Example filled in. Press Check symptoms when ready.", soFar: "Understood so far:", updating: "Updating…",
     rankHow: "How we rank doctors", tryExample: "Or tap an example",
+    f1: "🎙 Voice in English, Hindi, Hinglish", f2: "🧠 Understands “no fever”, “maybe”, “last year”", f3: "🚨 20 NHS emergency warning-sign rules",
+    f4: "📊 Trained model as a second opinion", f5: "🩺 Doctor matching, booking and video consult",
+    f6: "📄 Doctor's note: print, WhatsApp, FHIR (ABDM format)", f7: "🗺 Outbreak alerts for health officers", f8: "♿ Simple mode: big buttons, read aloud",
   },
   hi: {
     tagline: "आपकी भाषा में स्वास्थ्य मार्गदर्शन", location: "स्थान", inPerson: "क्लिनिक जाएं", video: "वीडियो परामर्श",
@@ -133,6 +136,9 @@ const T = {
     stopFirst: "बोल चुकें तो रोकें दबाएं।", doneListening: "समझ गए। टेक्स्ट देख लें, फिर लक्षण जांचें दबाएं।",
     exampleChosen: "उदाहरण भर दिया गया। तैयार हों तो लक्षण जांचें दबाएं।", soFar: "अब तक समझा:", updating: "अपडेट हो रहा है…",
     rankHow: "हम डॉक्टरों को कैसे रैंक करते हैं", tryExample: "या कोई उदाहरण चुनें",
+    f1: "🎙 अंग्रेज़ी, हिंदी, हिंग्लिश में आवाज़", f2: "🧠 “बुखार नहीं”, “शायद”, “पिछले साल” समझता है", f3: "🚨 NHS के 20 आपातकालीन चेतावनी नियम",
+    f4: "📊 प्रशिक्षित मॉडल की दूसरी राय", f5: "🩺 डॉक्टर मिलान, बुकिंग और वीडियो परामर्श",
+    f6: "📄 डॉक्टर नोट: प्रिंट, WhatsApp, FHIR (ABDM फ़ॉर्मेट)", f7: "🗺 स्वास्थ्य अधिकारियों के लिए प्रकोप अलर्ट", f8: "♿ सरल मोड: बड़े बटन, आवाज़ में नतीजा",
   },
 };
 
@@ -341,6 +347,8 @@ function goStep(n) {
     const k = +li.dataset.step;
     li.classList.toggle("on", k === n); li.classList.toggle("done", k < n);
   });
+  // Location and visit / video live on the Describe step and again on the Doctor step (one set of controls, moved).
+  if (n === 1 || n === 4) $(`ctx-slot-${n}`).appendChild($("ctx-bar"));
   window.scrollTo({ top: 0, behavior: "smooth" });
   const focus = { 1: "ask-h", 3: "v-level", 4: "doc-h" }[n];
   if (focus) setTimeout(() => $(focus)?.focus({ preventScroll: true }), 260);
