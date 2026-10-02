@@ -276,7 +276,7 @@ class TestAPI(unittest.TestCase):
     def test_insights_and_kg_endpoints(self):
         self.assertEqual(self.client.post("/api/insights/demo-data").status_code, 200)
         self.assertTrue(self.client.get("/api/insights").json()["alerts"])
-        self.assertEqual(self.client.get("/api/knowledge-graph").json()["stats"]["conditions"], 32)
+        self.assertEqual(self.client.get("/api/knowledge-graph").json()["stats"]["conditions"], 36)
 
 
 if __name__ == "__main__":
