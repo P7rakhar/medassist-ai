@@ -375,3 +375,13 @@ body.simple { font-size: 20px; }
 .simple .doctors > li:nth-child(n+4) { display: none; }
 .simple .doc-score .book { font-size: 20px; padding: 10px 22px; }
 .simple .ghost-light { font-size: 19px; padding: 10px 16px; }
+
+/* ---------- v0.6: trained-model second opinion ---------- */
+.second { margin-top: 12px; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius-m); padding: 10px 14px; }
+.so-title { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.so-picks { margin-top: 2px; }
+.so-picks .so-top { font-weight: 700; }
+.so-verdict { font-size: 15px; color: var(--ink-2); font-weight: 600; }
+.so-verdict.agree { color: var(--low); }
+.so-verdict.differ { color: var(--mod); }
+.simple .second { display: none; }

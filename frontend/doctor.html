@@ -42,12 +42,28 @@
     .detail-actions .primary { margin-left: 0; font-size: 15px; padding: 8px 14px; }
     .empty-q { border: 2px dashed var(--line); border-radius: var(--radius-m); padding: 28px; color: var(--ink-2); }
     .empty-q a { color: var(--ink); font-weight: 600; }
+    .review { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ink);
+              border-radius: var(--radius-m); padding: 14px 18px; }
+    .review h3 { font-size: 18px; font-weight: 700; }
+    .review .hint { margin-top: 2px; }
+    .review-levels { margin-top: 10px; }
+    .review-levels button { padding: 6px 16px; font-size: 15px; }
+    .review-levels small { font-size: 11px; font-weight: 700; margin-left: 4px; opacity: .75; }
+    .review-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .review-fields label { display: grid; gap: 3px; font-size: 14px; color: var(--ink-2); }
+    .review-fields input { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 7px 10px; font: inherit; color: var(--ink); }
+    .review-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+    .review-row .primary { margin-left: 0; font-size: 15px; padding: 8px 16px; }
+    .saved { font-size: 15px; font-weight: 600; }
+    .saved.agree { color: var(--low); } .saved.differ { color: var(--mod); }
+    .stats { font-size: 14px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
     .foot { margin-top: 30px; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 12px; max-width: 86ch; }
     @media (max-width: 900px) {
       .wrap { padding: 20px 16px 48px; }
       .board { grid-template-columns: 1fr; }
       .toolbar label { width: 100%; }
       .toolbar select { flex: 1; min-width: 0; }
+      .review-fields { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -73,6 +89,7 @@
         <button type="button" data-order="urgency">Most urgent first</button>
       </div>
       <span class="live-dot"><i></i> Updates automatically</span>
+      <span class="stats" id="stats" title="Doctor-labelled cases: your triage compared with the AI's">No doctor reviews yet</span>
     </div>
 
     <div class="board">
@@ -92,7 +109,7 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const LV = { LOW: "Low", MODERATE: "Moderate", HIGH: "High", UNCERTAIN: "Review" };
   const params = new URLSearchParams(location.search);
-  const st = { doctor: params.get("doctor"), selected: params.get("booking"), order: "time", items: [], sig: "" };
+  const st = { doctor: params.get("doctor"), selected: params.get("booking"), order: "time", items: [], sig: "", pick: {}, conditions: [] };
 
   function when(iso) {
     const d = new Date(iso), now = new Date(), tom = new Date(now); tom.setDate(now.getDate() + 1);
@@ -120,6 +137,7 @@
     }));
     $("queue").addEventListener("click", (e) => { const b = e.target.closest("[data-id]"); if (b) { st.selected = b.dataset.id; draw(); } });
     $("detail").addEventListener("click", onAction);
+    fetch("/api/knowledge-graph").then((r) => r.json()).then((kg) => { st.conditions = kg.conditions.map((c) => c.name.en).sort(); });
     await load();
     setInterval(load, 8000);          // a booking made on a phone appears here within seconds
   }
@@ -128,10 +146,20 @@
     const res = await fetch(`/api/doctor/${encodeURIComponent(st.doctor)}/appointments?order=${st.order}`);
     if (!res.ok) return;
     const data = await res.json();
-    const sig = JSON.stringify(data.appointments.map((a) => [a.booking_id, a.status])) + st.order;
+    const sig = JSON.stringify(data.appointments.map((a) => [a.booking_id, a.status, a.doctor_level])) + st.order;
     st.items = data.appointments;
     if (!st.selected || !st.items.some((a) => a.booking_id === st.selected)) st.selected = st.items[0]?.booking_id || null;
-    if (sig !== st.sig) { st.sig = sig; draw(); }
+    // Don't redraw under a doctor who is typing an assessment.
+    if (sig !== st.sig && !(document.activeElement && document.activeElement.closest("#review"))) { st.sig = sig; draw(); }
+    loadStats();
+  }
+
+  async function loadStats() {
+    const res = await fetch("/api/labelled-cases"); if (!res.ok) return;
+    const s = (await res.json()).stats;
+    $("stats").textContent = s.cases
+      ? `Doctor reviews: ${s.cases} · AI matched the doctor in ${s.agree} (${Math.round(s.agreement * 100)}%) · AI rated lower: ${s.ai_lower_than_doctor}`
+      : "No doctor reviews yet";
   }
 
   function draw() {
@@ -157,15 +185,58 @@
         <div class="detail-actions">
           ${a.video_link ? `<a class="primary" href="${esc(a.video_link)}" target="_blank" rel="noopener" style="text-decoration:none">Start video call</a>` : ""}
           ${a.note ? `<button type="button" class="ghost" data-act="print">Print note</button>` : ""}
+          ${a.note ? `<a class="ghost" href="/api/bookings/${encodeURIComponent(a.booking_id)}/fhir" download="medassist-${esc(a.booking_id)}-fhir.json" title="HL7 FHIR R4 document, shaped like ABDM's OP consultation record">Download FHIR record</a>` : ""}
           <button type="button" class="ghost" data-act="status">${a.status === "seen" ? "Mark as waiting" : "Mark as seen"}</button>
         </div>
       </div>
-      ${a.note ? MedNote.render(a.note, "en") : `<div class="empty-q">This booking was made without a symptom check, so there is no note.</div>`}`;
+      ${a.note ? MedNote.render(a.note, "en") + reviewPanel(a) : `<div class="empty-q">This booking was made without a symptom check, so there is no note.</div>`}`;
+  }
+
+  /* The doctor's own triage: confirms or corrects the AI, and becomes a doctor-labelled case. */
+  function reviewPanel(a) {
+    const ai = a.note.triage.level;
+    const pick = st.pick[a.booking_id] || a.doctor_level || "";
+    const btn = (lv) => `<button type="button" data-level="${lv}" class="${pick === lv ? "on" : ""}">${LV[lv]}${lv === ai ? "<small>AI</small>" : ""}</button>`;
+    const saved = a.doctor_level ? `<span class="saved ${a.doctor_level === ai ? "agree" : "differ"}">Saved: ${LV[a.doctor_level]}${
+      a.doctor_condition ? ` · ${esc(a.doctor_condition)}` : ""} · ${a.doctor_level === ai ? "AI agreed" : `AI said ${LV[ai] || ai}`}</span>` : "";
+    return `
+      <section class="review" id="review" aria-labelledby="rv-h">
+        <h3 id="rv-h">Your assessment</h3>
+        <p class="hint">MedAssist said <b>${LV[ai] || ai}</b>. Pick the level you would give. It is saved as a doctor-labelled case,
+          which is how we measure and improve the AI on real patients.</p>
+        <div class="seg seg-light review-levels" role="group" aria-label="Your triage level">${["LOW", "MODERATE", "HIGH"].map(btn).join("")}</div>
+        <div class="review-fields">
+          <label>Diagnosis (optional)<input id="rv-cond" list="rv-conds" maxlength="80" value="${esc(a.doctor_condition || "")}" placeholder="e.g. Dengue fever"></label>
+          <label>Comment (optional)<input id="rv-comment" maxlength="300" value="${esc(a.doctor_comment || "")}" placeholder="e.g. NS1 test ordered"></label>
+        </div>
+        <datalist id="rv-conds">${st.conditions.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>
+        <div class="review-row">
+          <button type="button" class="primary" data-act="review">Save assessment</button>
+          <span id="rv-msg" class="saved">${saved}</span>
+        </div>
+      </section>`;
   }
 
   async function onAction(e) {
+    const lvBtn = e.target.closest("[data-level]");
+    if (lvBtn) {
+      st.pick[st.selected] = lvBtn.dataset.level;
+      document.querySelectorAll("#review [data-level]").forEach((x) => x.classList.toggle("on", x === lvBtn));
+      return;
+    }
     const b = e.target.closest("[data-act]"); if (!b) return;
     const a = st.items.find((x) => x.booking_id === st.selected); if (!a) return;
+    if (b.dataset.act === "review") {
+      const level = st.pick[a.booking_id] || a.doctor_level;
+      if (!level) { $("rv-msg").textContent = "Pick Low, Moderate or High first."; return; }
+      const res = await fetch(`/api/bookings/${encodeURIComponent(a.booking_id)}/review`, { method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ level, condition: $("rv-cond").value, comment: $("rv-comment").value }) });
+      if (!res.ok) { $("rv-msg").textContent = "Could not save. Try again."; return; }
+      delete st.pick[a.booking_id];
+      b.blur(); st.sig = ""; await load();
+      return;
+    }
     if (b.dataset.act === "print") MedNote.print(MedNote.render(a.note, "en"));
     if (b.dataset.act === "status") {
       await fetch(`/api/bookings/${encodeURIComponent(a.booking_id)}/status`, { method: "POST", headers: { "Content-Type": "application/json" },

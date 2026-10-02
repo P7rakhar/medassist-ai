@@ -8,7 +8,9 @@ window.MedNote = (() => {
       past: "In the past only", risk: "Existing conditions", family: "Family history", details: "Details",
       duration: "Duration", severity: "Severity", temp: "Temperature", age: "Age", pain: "Pain", days: "days", hours: "hours",
       answers: "Follow-up answers", yes: "yes", no: "no", causes: "Possible causes to consider", specialty: "Suggested specialty",
-      words: "Patient's own words", asked: "asked", why: "Why this triage level", generated: "Generated", language: "Language",
+      words: "Patient's own words", asked: "asked", so: "Trained model's second opinion",
+      soAgree: "agrees with the knowledge graph", soDiffer: "differs from the knowledge graph, please check",
+      soOutside: "a disease outside our knowledge graph", soUnsure: "not confident", why: "Why this triage level", generated: "Generated", language: "Language",
       emergency: "Emergency: call 112 / 108 now", none: "none", sev: { severe: "severe", mild: "mild" },
       lvl: { LOW: "Low risk", MODERATE: "Moderate risk", HIGH: "High risk", UNCERTAIN: "Needs a doctor's review" },
     },
@@ -17,7 +19,9 @@ window.MedNote = (() => {
       past: "सिर्फ़ पहले था", risk: "पहले से बीमारी", family: "परिवार में", details: "विवरण",
       duration: "अवधि", severity: "गंभीरता", temp: "तापमान", age: "उम्र", pain: "दर्द", days: "दिन", hours: "घंटे",
       answers: "सवालों के जवाब", yes: "हां", no: "नहीं", causes: "संभावित कारण", specialty: "सुझाई गई विशेषज्ञता",
-      words: "मरीज़ के अपने शब्द", asked: "पूछा गया", why: "यह स्तर क्यों", generated: "बनाया गया", language: "भाषा",
+      words: "मरीज़ के अपने शब्द", asked: "पूछा गया", so: "प्रशिक्षित मॉडल की दूसरी राय",
+      soAgree: "नॉलेज ग्राफ़ से मेल खाती है", soDiffer: "नॉलेज ग्राफ़ से अलग है, कृपया जांचें",
+      soOutside: "हमारे नॉलेज ग्राफ़ से बाहर की बीमारी", soUnsure: "पक्की नहीं", why: "यह स्तर क्यों", generated: "बनाया गया", language: "भाषा",
       emergency: "आपातकाल: अभी 112 / 108 पर कॉल करें", none: "कोई नहीं", sev: { severe: "गंभीर", mild: "हल्का" },
       lvl: { LOW: "कम जोखिम", MODERATE: "मध्यम जोखिम", HIGH: "उच्च जोखिम", UNCERTAIN: "डॉक्टर की समीक्षा ज़रूरी" },
     },
@@ -36,6 +40,7 @@ window.MedNote = (() => {
     if (d.duration_days != null) det.push(`${h.duration}: ${d.duration_days < 1 ? Math.round(d.duration_days * 24) + " " + h.hours : +(+d.duration_days).toFixed(1) + " " + h.days}`);
     if (h.sev[d.severity]) det.push(`${h.severity}: ${h.sev[d.severity]}`);
     if (d.temperature_f != null) det.push(`${h.temp}: ${d.temperature_f}°F`);
+    if (d.spo2 != null) det.push(`SpO2: ${d.spo2}%`);
     if (d.age != null) det.push(`${h.age}: ${d.age}`);
     if (d.pain_score != null) det.push(`${h.pain}: ${d.pain_score}/10`);
     return `
@@ -53,6 +58,8 @@ window.MedNote = (() => {
           ${row(h.family, n.family_history.map(L).join(", "))}
           ${row(h.details, det.join(" · "))}
           ${row(h.causes, n.possible_conditions.map((c) => `${L(c)}${c.icd10 ? ` <span class="icd">${esc(c.icd10)}</span>` : ""}`).join(", "))}
+          ${n.second_opinion ? row(h.so, `${L(n.second_opinion)} (${Math.round(n.second_opinion.probability * 100)}%): ${
+            n.second_opinion.confident === false ? h.soUnsure : n.second_opinion.agrees === true ? h.soAgree : n.second_opinion.agrees === false ? h.soDiffer : h.soOutside}`) : ""}
           ${row(h.specialty, L(n.specialty))}
           ${row(h.why, `<ul>${tr.reasons.map((r) => `<li>${L(r)}</li>`).join("")}</ul>`)}
           ${row(h.words, n.patient_words ? `<q>${esc(n.patient_words)}</q> <small>· ${esc(n.language)}</small>` : "")}

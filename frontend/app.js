@@ -34,6 +34,10 @@ const T = {
     langDetected: "Detected", tokens: "tokens", candidates: "Candidates", redFlags: "Red flags", none: "none",
     ranked: "doctors ranked for", kgStats: (s) => `Knowledge graph: ${s.symptoms} symptoms, ${s.conditions} conditions, ${s.edges} weighted links, ${s.synonyms} phrases in 3 languages.`,
     llmOff: "LLM fallback: off (fully offline)", added: "added",
+    soTitle: "Second opinion from a trained model",
+    soModel: (m) => `Logistic regression trained on ${m.cases.toLocaleString("en-IN")} public patient descriptions (${m.diseases} diseases); ${Math.round(m.held_out_accuracy * 100)}% correct on descriptions it never saw.`,
+    soAgree: "Agrees with the knowledge graph.", soDiffer: "Differs from the knowledge graph. Your doctor will see both.",
+    soOutside: "This disease is outside our knowledge graph. Your doctor will see it.", soUnsure: "The model is not confident here.",
     insightsLink: "Health officer insights", questionsTitle: "A few quick questions", questionsHint: "Each answer updates the assessment straight away.",
     startOver: "Start over", yes: "Yes", no: "No", safetyCheck: "Safety check", mostUseful: "Helps narrow it down",
     maybe: "maybe", youSaidYes: "you said yes", notCounted: "Not counted (in the past)", familyHistory: "Family history",
@@ -85,6 +89,10 @@ const T = {
     langDetected: "पहचानी गई भाषा", tokens: "टोकन", candidates: "संभावनाएं", redFlags: "खतरे के संकेत", none: "कोई नहीं",
     ranked: "डॉक्टर रैंक किए गए —", kgStats: (s) => `नॉलेज ग्राफ़: ${s.symptoms} लक्षण, ${s.conditions} बीमारियां, ${s.edges} भारित संबंध, 3 भाषाओं में ${s.synonyms} वाक्यांश।`,
     llmOff: "LLM फॉलबैक: बंद (पूरी तरह ऑफ़लाइन)", added: "जोड़ा गया",
+    soTitle: "प्रशिक्षित मॉडल की दूसरी राय",
+    soModel: (m) => `${m.cases.toLocaleString("en-IN")} सार्वजनिक मरीज़ विवरणों (${m.diseases} बीमारियां) पर प्रशिक्षित लॉजिस्टिक रिग्रेशन; अनदेखे विवरणों पर ${Math.round(m.held_out_accuracy * 100)}% सही।`,
+    soAgree: "नॉलेज ग्राफ़ से मेल खाती है।", soDiffer: "नॉलेज ग्राफ़ से अलग है। डॉक्टर दोनों देखेंगे।",
+    soOutside: "यह बीमारी हमारे नॉलेज ग्राफ़ से बाहर है। डॉक्टर इसे देखेंगे।", soUnsure: "मॉडल यहां पक्का नहीं है।",
     insightsLink: "स्वास्थ्य अधिकारी डैशबोर्ड", questionsTitle: "कुछ छोटे सवाल", questionsHint: "हर जवाब से आकलन तुरंत बदलता है।",
     startOver: "फिर से शुरू करें", yes: "हां", no: "नहीं", safetyCheck: "सुरक्षा जांच", mostUseful: "पहचान में मदद करेगा",
     maybe: "शायद", youSaidYes: "आपने हां कहा", notCounted: "गिना नहीं गया (पहले था)", familyHistory: "परिवार में",
@@ -318,6 +326,7 @@ function render(r) {
   if (r.duration_days != null) facts.push(`${t("duration")}: ${fmtDuration(r.duration_days)}`);
   facts.push(`${t("severity")}: ${t("sev_" + r.severity)}`);
   if (r.temperature_f != null) facts.push(`${t("temp")}: ${r.temperature_f}°F`);
+  if (r.spo2 != null) facts.push(`SpO2: ${r.spo2}%`);
   if (r.age != null) facts.push(`${t("ageLbl")}: ${r.age}`);
   if (r.pain_score != null) facts.push(`${t("painScore")}: ${r.pain_score}/10`);
   $("facts").textContent = facts.join("   |   ");
@@ -344,6 +353,17 @@ function render(r) {
       <span class="why">${c.matched.map(L).map(esc).join(", ")}${c.icd10 ? ` <span class="icd">${t("icd")} ${esc(c.icd10)}</span>` : ""}${
         c.info_source ? ` <a class="src" href="${esc(c.info_source)}" target="_blank" rel="noopener">${t("source")}</a>` : ""}</span>
     </li>`).join("");
+
+  // Second opinion from the trained model (shown under the knowledge graph's ranking, never instead of it)
+  const so = r.second_opinion;
+  $("second-opinion").hidden = !so;
+  if (so) {
+    const verdict = !so.confident ? t("soUnsure") : so.agrees === true ? t("soAgree") : so.agrees === false ? t("soDiffer") : t("soOutside");
+    $("second-opinion").innerHTML = `<p class="so-title">${t("soTitle")}</p>
+      <p class="so-picks">${so.top.filter((x, i) => i === 0 || x.probability >= 0.05).map((x, i) => `<span class="${i ? "" : "so-top"}">${esc(L(x.name))} ${Math.round(x.probability * 100)}%</span>`).join(" · ")}</p>
+      <p class="so-verdict ${so.confident && so.agrees === false ? "differ" : so.confident && so.agrees ? "agree" : ""}">${verdict}</p>
+      <p class="fine">${esc(T[state.ui].soModel(so.model))}</p>`;
+  }
 
   // Advice
   const top = r.conditions[0];
