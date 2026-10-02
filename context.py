@@ -68,6 +68,12 @@ class ConTextEngine:
         self.forward_stop = {phonetic_key(w) for w in data.get("FORWARD_STOP_WORDS", [])}
         self.backward_stop = {phonetic_key(w) for w in data.get("BACKWARD_STOP_WORDS", [])}
         self.list_words = {phonetic_key(w) for w in data.get("LIST_WORDS", [])}
+        self.list_negation = {tuple(phonetic_key(t) for t in p.split()) for p in data.get("LIST_NEGATION", [])}
+        for p in data.get("LIST_NEGATION", []):                 # make sure each one is also a negation trigger
+            key = tuple(phonetic_key(t) for t in p.split())
+            self.triggers.setdefault(key, ("NEGATED", "forward", p))
+        self.max_len = max(len(k) for k in self.triggers)
+        self.connectors = {phonetic_key(w) for w in ["and", "or", "nor", "any", "aur", "ya", ","]}
 
     def find_triggers(self, keys: list[str], blocked: set[int]) -> list[TriggerHit]:
         hits, i = [], 0
@@ -99,6 +105,12 @@ class ConTextEngine:
         is_list = any(k in self.list_words for k in keys)
         terminators = [h for h in hits if h.category == "TERMINATE"]
 
+        span_pos = {k for s in spans for k in range(s.start, s.end)}
+
+        def enumeration(a: int, b: int) -> bool:
+            """Only symptoms, commas and and/or between a and b: "denies fever, chills, and weight loss"."""
+            return all(k in span_pos or keys[k] in self.connectors for k in range(a, b))
+
         def stopped(a: int, b: int, direction: str) -> bool:
             """Is there a scope breaker strictly between token positions a and b?"""
             for t in terminators:
@@ -126,7 +138,9 @@ class ConTextEngine:
                     # pronoun/verb stop words ("no fever and I have cough") only limit negation;
                     # "maybe I have fever" must still mark fever as uncertain.
                     mode = "forward" if h.category == "NEGATED" else "forward_soft"
-                    if gap <= self.scope and not stopped(h.end, s.start, mode):
+                    listed = (h.category == "NEGATED" and tuple(keys[h.start:h.end]) in self.list_negation
+                              and gap <= 24 and enumeration(h.end, s.start))
+                    if listed or (gap <= self.scope and not stopped(h.end, s.start, mode)):
                         s.modifiers.setdefault(h.category, h.text)
                 if h.direction in ("backward", "both") and s.end <= h.start:
                     gap = h.start - s.end

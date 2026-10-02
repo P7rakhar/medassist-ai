@@ -34,6 +34,10 @@ const T = {
     langDetected: "Detected", tokens: "tokens", candidates: "Candidates", redFlags: "Red flags", none: "none",
     ranked: "doctors ranked for", kgStats: (s) => `Knowledge graph: ${s.symptoms} symptoms, ${s.conditions} conditions, ${s.edges} weighted links, ${s.synonyms} phrases in 3 languages.`,
     llmOff: "LLM fallback: off (fully offline)", added: "added",
+    soTitle: "Second opinion from a trained model",
+    soModel: (m) => `Logistic regression trained on ${m.cases.toLocaleString("en-IN")} public patient descriptions (${m.diseases} diseases); ${Math.round(m.held_out_accuracy * 100)}% correct on descriptions it never saw.`,
+    soAgree: "Agrees with the knowledge graph.", soDiffer: "Differs from the knowledge graph. Your doctor will see both.",
+    soOutside: "This disease is outside our knowledge graph. Your doctor will see it.", soUnsure: "The model is not confident here.",
     insightsLink: "Health officer insights", questionsTitle: "A few quick questions", questionsHint: "Each answer updates the assessment straight away.",
     startOver: "Start over", yes: "Yes", no: "No", safetyCheck: "Safety check", mostUseful: "Helps narrow it down",
     maybe: "maybe", youSaidYes: "you said yes", notCounted: "Not counted (in the past)", familyHistory: "Family history",
@@ -44,6 +48,14 @@ const T = {
     micDenied: "Microphone access is blocked. Click the lock icon next to the address, allow Microphone, then try again.",
     micNetwork: "Voice recognition needs internet. You can type instead.", micNoDevice: "No microphone found. Plug one in or type instead.",
     heard: "Heard so far",
+    noteTitle: "Doctor's note", noteHint: "A one-page summary of what you told us, for your doctor or family. It's attached automatically when you book.",
+    notePreview: "Preview note", whatsapp: "Send on WhatsApp", print: "Print / save PDF", close: "Close",
+    sharedWith: (n) => `Your symptom summary has been shared with ${n}, so the consultation can start straight away.`,
+    doctorViewLink: "See what the doctor sees", doctorLink: "Doctor view", simple: "Simple mode",
+    consentTitle: "Before you start",
+    consentBody: "MedAssist gives guidance, not a diagnosis. What you type or say is analysed only to suggest care. For health trends we keep anonymised data only: no words, no name, area rounded to about 1 km. If you book, your symptom summary is shared with that doctor. Voice is turned into text by your browser's speech service.",
+    consentAgree: "I agree", consentGiven: "Consent given", consentHow: "How your data is used",
+    consentNeeded: "Please read the note above and tap “I agree” first.", pleaseAnswer: "Please answer:",
   },
   hi: {
     tagline: "आपकी भाषा में स्वास्थ्य मार्गदर्शन", location: "स्थान", inPerson: "क्लिनिक जाएं", video: "वीडियो परामर्श",
@@ -77,6 +89,10 @@ const T = {
     langDetected: "पहचानी गई भाषा", tokens: "टोकन", candidates: "संभावनाएं", redFlags: "खतरे के संकेत", none: "कोई नहीं",
     ranked: "डॉक्टर रैंक किए गए —", kgStats: (s) => `नॉलेज ग्राफ़: ${s.symptoms} लक्षण, ${s.conditions} बीमारियां, ${s.edges} भारित संबंध, 3 भाषाओं में ${s.synonyms} वाक्यांश।`,
     llmOff: "LLM फॉलबैक: बंद (पूरी तरह ऑफ़लाइन)", added: "जोड़ा गया",
+    soTitle: "प्रशिक्षित मॉडल की दूसरी राय",
+    soModel: (m) => `${m.cases.toLocaleString("en-IN")} सार्वजनिक मरीज़ विवरणों (${m.diseases} बीमारियां) पर प्रशिक्षित लॉजिस्टिक रिग्रेशन; अनदेखे विवरणों पर ${Math.round(m.held_out_accuracy * 100)}% सही।`,
+    soAgree: "नॉलेज ग्राफ़ से मेल खाती है।", soDiffer: "नॉलेज ग्राफ़ से अलग है। डॉक्टर दोनों देखेंगे।",
+    soOutside: "यह बीमारी हमारे नॉलेज ग्राफ़ से बाहर है। डॉक्टर इसे देखेंगे।", soUnsure: "मॉडल यहां पक्का नहीं है।",
     insightsLink: "स्वास्थ्य अधिकारी डैशबोर्ड", questionsTitle: "कुछ छोटे सवाल", questionsHint: "हर जवाब से आकलन तुरंत बदलता है।",
     startOver: "फिर से शुरू करें", yes: "हां", no: "नहीं", safetyCheck: "सुरक्षा जांच", mostUseful: "पहचान में मदद करेगा",
     maybe: "शायद", youSaidYes: "आपने हां कहा", notCounted: "गिना नहीं गया (पहले था)", familyHistory: "परिवार में",
@@ -87,6 +103,14 @@ const T = {
     micDenied: "माइक्रोफ़ोन की अनुमति बंद है। पते के पास ताले पर क्लिक करें, माइक्रोफ़ोन चालू करें और फिर कोशिश करें।",
     micNetwork: "आवाज़ पहचानने के लिए इंटरनेट चाहिए। आप टाइप कर सकते हैं।", micNoDevice: "माइक्रोफ़ोन नहीं मिला। टाइप करें।",
     heard: "अब तक सुना",
+    noteTitle: "डॉक्टर के लिए नोट", noteHint: "आपने जो बताया उसका एक पेज का सारांश, डॉक्टर या परिवार के लिए। बुकिंग पर यह अपने-आप डॉक्टर को भेजा जाता है।",
+    notePreview: "नोट देखें", whatsapp: "WhatsApp पर भेजें", print: "प्रिंट / PDF", close: "बंद करें",
+    sharedWith: (n) => `आपके लक्षणों का सारांश ${n} को भेज दिया गया है, ताकि परामर्श तुरंत शुरू हो सके।`,
+    doctorViewLink: "डॉक्टर को क्या दिखता है, देखें", doctorLink: "डॉक्टर व्यू", simple: "सरल मोड",
+    consentTitle: "शुरू करने से पहले",
+    consentBody: "MedAssist मार्गदर्शन देता है, निदान नहीं। आप जो लिखते या बोलते हैं, उसका विश्लेषण सिर्फ़ इलाज सुझाने के लिए होता है। स्वास्थ्य रुझानों के लिए हम केवल गुमनाम डेटा रखते हैं: न आपके शब्द, न नाम, जगह लगभग 1 कि.मी. तक। बुकिंग करने पर आपके लक्षणों का सारांश उसी डॉक्टर को भेजा जाता है। आवाज़ को टेक्स्ट में आपके ब्राउज़र की स्पीच सेवा बदलती है।",
+    consentAgree: "मैं सहमत हूं", consentGiven: "सहमति दी गई", consentHow: "आपका डेटा कैसे इस्तेमाल होता है",
+    consentNeeded: "कृपया पहले ऊपर दी गई जानकारी पढ़कर “मैं सहमत हूं” दबाएं।", pleaseAnswer: "कृपया जवाब दें:",
   },
 };
 
@@ -106,15 +130,23 @@ const COMPONENTS = ["specialty", "distance", "rating", "availability", "language
 const SEG_COLORS = ["var(--seg-1)", "var(--seg-2)", "var(--seg-3)", "var(--seg-4)", "var(--seg-5)", "var(--seg-6)"];
 const LANG_NAMES = { en: "English", hi: "हिंदी", pa: "ਪੰਜਾਬੀ", bn: "বাংলা", ta: "தமிழ்", te: "తెలుగు", ml: "മലയാളം", mr: "मराठी", gu: "ગુજરાતી", ur: "اردو" };
 
-const state = { ui: "en", mode: "in_person", meta: null, loc: null, last: null, answers: {}, slots: {}, booking: null, voiceLang: "en-IN" };
+const state = { ui: "en", mode: "in_person", meta: null, loc: null, last: null, answers: {}, slots: {}, booking: null, voiceLang: "en-IN",
+                consented: false, simple: false, lastBody: null };
 const $ = (id) => document.getElementById(id);
 const t = (k) => (T[state.ui][k] ?? T.en[k] ?? k);
 const L = (obj) => (obj ? (state.ui === "hi" ? obj.hi ?? obj.en : obj.en ?? obj.hi) : "");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Per-tab memory for consent and simple mode. Storage can be unavailable (private mode), so never rely on it.
+const session = {
+  get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* ignore */ } },
+};
 
 /* ------------------------------------------------------------ setup --- */
 async function init() {
   bindEvents();
+  setConsent(session.get("medassist-consent") === "yes");
+  setSimple(session.get("medassist-simple") === "yes");
   applyI18n();
   try {
     const res = await fetch("/api/meta");
@@ -150,8 +182,18 @@ function bindEvents() {
   $("text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) analyse(); });
   $("examples").addEventListener("click", (e) => {
     const b = e.target.closest("[data-ex]"); if (!b) return;
+    if (needConsent()) return;
     $("text").value = EXAMPLES[+b.dataset.ex].text; analyse();
   });
+  $("consent-ok").addEventListener("click", () => { setConsent(true); $("mic-status").textContent = ""; });
+  $("consent-more").addEventListener("click", () => setConsent(false, true));
+  $("simple-toggle").addEventListener("click", () => setSimple(!state.simple));
+  $("note-preview").addEventListener("click", () => {
+    $("note-body").innerHTML = MedNote.render(state.last.handoff, state.ui); $("note-dlg").showModal();
+  });
+  $("note-print").addEventListener("click", () => MedNote.print(MedNote.render(state.last.handoff, state.ui)));
+  $("note-dlg-print").addEventListener("click", () => { $("note-dlg").close(); MedNote.print(MedNote.render(state.last.handoff, state.ui)); });
+  $("note-dlg-close").addEventListener("click", () => $("note-dlg").close());
   document.querySelectorAll("[data-ui]").forEach((b) => b.addEventListener("click", () => {
     state.ui = b.dataset.ui; toggleOn("[data-ui]", b);
     setVoiceLang(state.ui === "hi" ? "hi-IN" : "en-IN");
@@ -190,6 +232,30 @@ function bindEvents() {
   $("close-done").addEventListener("click", () => $("book-dlg").close());
 }
 
+/* ---------------------------------------------- consent, simple mode --- */
+function setConsent(yes, reopened = false) {
+  state.consented = yes || (reopened && state.consented);
+  if (yes) session.set("medassist-consent", "yes");
+  $("consent").classList.toggle("agreed", yes);
+}
+
+function needConsent() {
+  if (state.consented) return false;
+  const c = $("consent");
+  c.classList.remove("nudge"); void c.offsetWidth; c.classList.add("nudge");
+  $("mic-status").textContent = t("consentNeeded");
+  c.scrollIntoView({ behavior: "smooth", block: "center" });
+  return true;
+}
+
+/* Simple mode: large text and buttons, fewer technical details, and every result is read aloud. */
+function setSimple(on) {
+  state.simple = on;
+  session.set("medassist-simple", on ? "yes" : "no");
+  document.body.classList.toggle("simple", on);
+  $("simple-toggle").setAttribute("aria-pressed", String(on));
+}
+
 function toggleOn(selector, active) {
   document.querySelectorAll(selector).forEach((x) => x.classList.toggle("on", x === active));
 }
@@ -212,6 +278,7 @@ function onLocation() {
 async function analyse(keep = false) {
   const text = $("text").value.trim();
   if (!keep) { state.answers = {}; state.slots = {}; }          // a new description starts a new conversation
+  if (needConsent()) return;
   if (!text && !Object.keys(state.answers).length) { $("mic-status").textContent = t("describeFirst"); $("text").focus(); return; }
   const btn = $("go"); btn.disabled = true; btn.textContent = t("analysing");
   const ageVal = $("age").value;
@@ -222,8 +289,10 @@ async function analyse(keep = false) {
     const res = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
     state.last = await res.json();
+    state.lastBody = body;
     $("mic-status").textContent = "";
     render(state.last);
+    if (state.simple) { speakResult(); $("verdict").scrollIntoView({ behavior: "smooth", block: "start" }); }
   } catch (err) {
     $("mic-status").textContent = err instanceof TypeError ? t("serverError") : String(err.message || err);
   } finally {
@@ -257,6 +326,7 @@ function render(r) {
   if (r.duration_days != null) facts.push(`${t("duration")}: ${fmtDuration(r.duration_days)}`);
   facts.push(`${t("severity")}: ${t("sev_" + r.severity)}`);
   if (r.temperature_f != null) facts.push(`${t("temp")}: ${r.temperature_f}°F`);
+  if (r.spo2 != null) facts.push(`SpO2: ${r.spo2}%`);
   if (r.age != null) facts.push(`${t("ageLbl")}: ${r.age}`);
   if (r.pain_score != null) facts.push(`${t("painScore")}: ${r.pain_score}/10`);
   $("facts").textContent = facts.join("   |   ");
@@ -284,6 +354,17 @@ function render(r) {
         c.info_source ? ` <a class="src" href="${esc(c.info_source)}" target="_blank" rel="noopener">${t("source")}</a>` : ""}</span>
     </li>`).join("");
 
+  // Second opinion from the trained model (shown under the knowledge graph's ranking, never instead of it)
+  const so = r.second_opinion;
+  $("second-opinion").hidden = !so;
+  if (so) {
+    const verdict = !so.confident ? t("soUnsure") : so.agrees === true ? t("soAgree") : so.agrees === false ? t("soDiffer") : t("soOutside");
+    $("second-opinion").innerHTML = `<p class="so-title">${t("soTitle")}</p>
+      <p class="so-picks">${so.top.filter((x, i) => i === 0 || x.probability >= 0.05).map((x, i) => `<span class="${i ? "" : "so-top"}">${esc(L(x.name))} ${Math.round(x.probability * 100)}%</span>`).join(" · ")}</p>
+      <p class="so-verdict ${so.confident && so.agrees === false ? "differ" : so.confident && so.agrees ? "agree" : ""}">${verdict}</p>
+      <p class="fine">${esc(T[state.ui].soModel(so.model))}</p>`;
+  }
+
   // Advice
   const top = r.conditions[0];
   $("advice-block").hidden = !top || tr.level === "UNCERTAIN";
@@ -293,6 +374,10 @@ function render(r) {
   $("doc-specialty").textContent = L(r.specialty);
   $("doctors").innerHTML = r.doctors.map(doctorRow).join("");
   $("disclaimer").textContent = L(r.disclaimer);
+
+  // Doctor's note: WhatsApp share (wa.me opens WhatsApp with the text ready; the user picks the contact)
+  $("note-block").hidden = !r.handoff || !r.symptoms.length;
+  if (r.handoff) $("note-wa").href = "https://wa.me/?text=" + encodeURIComponent(r.handoff.text[state.ui] || r.handoff.text.en);
 
   renderTrace(r);
 }
@@ -419,7 +504,7 @@ async function confirmBooking() {
   if (!name) { $("book-error").textContent = t("needName"); $("pname").focus(); return; }
   try {
     const res = await fetch("/api/book", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ doctor_id: b.doctor.id, slot: b.slot, patient_name: name, mode: b.mode }) });
+      body: JSON.stringify({ doctor_id: b.doctor.id, slot: b.slot, patient_name: name, mode: b.mode, case: state.lastBody }) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail);
     const rows = [
@@ -429,6 +514,8 @@ async function confirmBooking() {
     ];
     if (data.video_link) rows.push([t("bLink"), `<a href="${data.video_link}" target="_blank" rel="noopener">${esc(data.video_link)}</a>`]);
     $("book-summary").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+    $("book-shared").textContent = data.note ? T[state.ui].sharedWith(data.doctor_name) : "";
+    $("open-doctor-view").href = `doctor.html?doctor=${encodeURIComponent(data.doctor_id)}&booking=${encodeURIComponent(data.booking_id)}`;
     $("book-form").hidden = true; $("book-done").hidden = false;
     analyse(true);  // refresh slots so the booked one disappears
   } catch (err) {
@@ -444,6 +531,9 @@ async function confirmBooking() {
  * or until there has been no speech for SILENCE_MS (with a visible countdown first).
  */
 const SILENCE_MS = window.MEDASSIST_SILENCE_MS || 8000;
+// Phones: the mic can serve only one listener, and Android Chrome's continuous mode repeats or drops text.
+// So on phones we use short single-utterance sessions (continuous = false) and our own restart loop.
+const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 const voice = { rec: null, wanted: false, finalText: "", interim: "", lastHeard: 0, started: 0, timer: null,
                 restarts: [], audio: null, raf: 0 };
 
@@ -454,6 +544,7 @@ function setVoiceLang(lang) {
 
 function toggleMic() {
   if (voice.wanted) { stopVoice(); return; }
+  if (needConsent()) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { $("mic-status").textContent = t("micUnsupported"); return; }
   voice.wanted = true;
@@ -469,24 +560,26 @@ function toggleMic() {
   renderLive();
   openSession(SR);
   voice.timer = setInterval(tickVoice, 250);
-  startLevelMeter();
 }
 
 function openSession(SR) {
   const rec = new SR();
   rec.lang = state.voiceLang;
-  rec.continuous = true;
+  rec.continuous = !IS_MOBILE;
   rec.interimResults = true;
   rec.maxAlternatives = 1;
   rec.onresult = (e) => {
     let interim = "";
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i];
-      if (res.isFinal) voice.finalText = joinText(voice.finalText, res[0].transcript);
-      else interim += res[0].transcript;
+      const said = res[0].transcript.trim();
+      if (res.isFinal) {
+        if (said && !voice.finalText.endsWith(said)) voice.finalText = joinText(voice.finalText, said);  // Android can repeat a final result
+      } else interim += res[0].transcript;
     }
     voice.interim = interim.trim();
     voice.lastHeard = Date.now();
+    showHearing();
     renderLive();
   };
   rec.onerror = (e) => {
@@ -524,7 +617,6 @@ function stopVoice() {
 
 function finishVoice() {
   clearInterval(voice.timer);
-  stopLevelMeter();
   if (voice.interim) { voice.finalText = joinText(voice.finalText, voice.interim); voice.interim = ""; }
   $("text").value = voice.finalText;
   $("mic").setAttribute("aria-pressed", "false");
@@ -545,31 +637,13 @@ function renderLive() {
   $("text").value = joinText(voice.finalText, voice.interim);
 }
 
-async function startLevelMeter() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    ctx.createMediaStreamSource(stream).connect(analyser);
-    const data = new Uint8Array(analyser.fftSize);
-    const bars = document.querySelectorAll("#live .level i");
-    voice.audio = { stream, ctx };
-    const draw = () => {
-      analyser.getByteTimeDomainData(data);
-      let sum = 0;
-      for (const v of data) sum += (v - 128) * (v - 128);
-      const rms = Math.min(1, Math.sqrt(sum / data.length) / 40);
-      bars.forEach((b, i) => { b.style.transform = `scaleY(${0.2 + rms * (0.6 + 0.4 * Math.sin(i + Date.now() / 120))})`; });
-      voice.raf = requestAnimationFrame(draw);
-    };
-    draw();
-  } catch { document.querySelector("#live .level")?.setAttribute("hidden", ""); }
-}
-
-function stopLevelMeter() {
-  cancelAnimationFrame(voice.raf);
-  if (voice.audio) { voice.audio.stream.getTracks().forEach((tr) => tr.stop()); voice.audio.ctx.close(); voice.audio = null; }
+/* The level bars animate when speech arrives. We deliberately do NOT open the microphone a second time
+   (getUserMedia) for a real level meter: on phones that blocks the speech recogniser. */
+function showHearing() {
+  const live = $("live");
+  live.classList.add("hearing");
+  clearTimeout(voice.hearingTimer);
+  voice.hearingTimer = setTimeout(() => live.classList.remove("hearing"), 700);
 }
 
 function speakResult() {
@@ -577,6 +651,8 @@ function speakResult() {
   const r = state.last, tr = r.triage;
   const parts = [T[state.ui]["lvl_" + tr.level] + ".", L(tr.action)];
   if (r.conditions[0] && tr.level !== "UNCERTAIN") parts.push(L(r.conditions[0].name) + ".", L(r.conditions[0].advice));
+  const q = (r.questions || [])[0];
+  if (state.simple && q) parts.push(t("pleaseAnswer"), L(q.prompt).replace("{label}", L(q.label)));
   const u = new SpeechSynthesisUtterance(parts.join(" "));
   const lang = state.ui === "hi" ? "hi-IN" : "en-IN";
   u.lang = lang;

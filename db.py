@@ -33,6 +33,8 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS bookings (
   booking_id TEXT PRIMARY KEY, doctor_id TEXT NOT NULL, doctor_name TEXT, clinic TEXT, area TEXT,
   slot TEXT NOT NULL, slot_end TEXT, mode TEXT, patient_name TEXT, fee INTEGER, video_link TEXT, created_at TEXT,
+  note TEXT, status TEXT DEFAULT 'waiting',
+  doctor_level TEXT, doctor_condition TEXT, doctor_comment TEXT, reviewed_at TEXT,
   UNIQUE (doctor_id, slot)
 );
 CREATE TABLE IF NOT EXISTS cases (
@@ -51,6 +53,12 @@ class Store:
         self.conn.row_factory = sqlite3.Row
         with self.lock:
             self.conn.executescript(SCHEMA)
+            # Databases from v0.4 lack the handoff columns: add them in place.
+            cols = {r["name"] for r in self.conn.execute("PRAGMA table_info(bookings)")}
+            for col, ddl in (("note", "TEXT"), ("status", "TEXT DEFAULT 'waiting'"), ("doctor_level", "TEXT"),
+                             ("doctor_condition", "TEXT"), ("doctor_comment", "TEXT"), ("reviewed_at", "TEXT")):
+                if col not in cols:
+                    self.conn.execute(f"ALTER TABLE bookings ADD COLUMN {col} {ddl}")
             self.conn.commit()
 
     def close(self) -> None:
@@ -61,10 +69,22 @@ class Store:
     # ------------------------------------------------------------ bookings ---
     def save_booking(self, b: dict) -> None:
         cols = ["booking_id", "doctor_id", "doctor_name", "clinic", "area", "slot", "slot_end", "mode",
-                "patient_name", "fee", "video_link", "created_at"]
+                "patient_name", "fee", "video_link", "created_at", "note", "status"]
+        values = [json.dumps(b["note"], ensure_ascii=False) if c == "note" and b.get("note") else b.get(c) for c in cols]
         with self.lock:
-            self.conn.execute(f"INSERT INTO bookings ({','.join(cols)}) VALUES ({','.join('?' * len(cols))})",
-                              [b.get(c) for c in cols])
+            self.conn.execute(f"INSERT INTO bookings ({','.join(cols)}) VALUES ({','.join('?' * len(cols))})", values)
+            self.conn.commit()
+
+    def set_review(self, booking_id: str, level: str, condition: str | None, comment: str | None, when: str) -> None:
+        """The doctor's own triage level (and diagnosis) for this patient: a doctor-labelled case."""
+        with self.lock:
+            self.conn.execute("UPDATE bookings SET doctor_level = ?, doctor_condition = ?, doctor_comment = ?, reviewed_at = ?, "
+                              "status = 'seen' WHERE booking_id = ?", (level, condition, comment, when, booking_id))
+            self.conn.commit()
+
+    def set_status(self, booking_id: str, status: str) -> None:
+        with self.lock:
+            self.conn.execute("UPDATE bookings SET status = ? WHERE booking_id = ?", (status, booking_id))
             self.conn.commit()
 
     def booked_slots(self) -> set[tuple[str, str]]:
@@ -73,7 +93,11 @@ class Store:
 
     def bookings(self) -> list[dict]:
         with self.lock:
-            return [dict(r) for r in self.conn.execute("SELECT * FROM bookings ORDER BY created_at DESC")]
+            rows = [dict(r) for r in self.conn.execute("SELECT * FROM bookings ORDER BY created_at DESC")]
+        for r in rows:
+            r["note"] = json.loads(r["note"]) if r.get("note") else None
+            r["status"] = r.get("status") or "waiting"
+        return rows
 
     # --------------------------------------------------------------- cases ---
     def log_case(self, ts: datetime, area: str, lat: float, lon: float, lang: str, level: str,

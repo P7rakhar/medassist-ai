@@ -6,6 +6,7 @@ Order of decisions:
   2. Any red-flag rule fires                 -> HIGH (hard safety override, never averaged away)
   3. Symptoms that fit no clear pattern      -> UNCERTAIN
   4. Otherwise a 0-100 risk score            -> LOW (<35) / MODERATE (35-64) / HIGH (>=65)
+     with a floor: chest pain, breathlessness or blood in urine are never LOW
 """
 from __future__ import annotations
 
@@ -32,10 +33,24 @@ def severity_points(sev: float) -> float:
 
 MAX_RISK_FACTOR_POINTS = 15
 
+# Symptoms that are never rated LOW, however benign the rest looks
+# (a heart attack can feel like acidity; breathlessness or blood in urine always needs a doctor).
+NEVER_LOW = {
+    "chest_pain": ("Chest pain is never rated low risk: heart problems can feel like acidity",
+                   "सीने के दर्द को कभी कम जोखिम नहीं माना जाता: दिल की समस्या एसिडिटी जैसी लग सकती है"),
+    "breathlessness": ("Breathlessness is never rated low risk", "सांस फूलने को कभी कम जोखिम नहीं माना जाता"),
+    "blood_in_urine": ("Blood in urine is never rated low risk", "पेशाब में खून को कभी कम जोखिम नहीं माना जाता"),
+    "blood_in_stool": ("Blood in stool is never rated low risk", "मल में खून को कभी कम जोखिम नहीं माना जाता"),
+}
+
+# Pulse-oximeter thresholds from NHS England's home oxygen-monitoring guidance:
+# 92% or below -> emergency; 93-94% -> same-day / urgent advice.
+SPO2_EMERGENCY, SPO2_URGENT = 92, 94
+
 
 def assess(present: list[str], conditions: list[ConditionMatch], red_flags: list[dict],
            duration_days: float | None, severity: str, age: int | None,
-           temperature_f: float | None = None, risk_factors: list[dict] | None = None) -> dict:
+           temperature_f: float | None = None, risk_factors: list[dict] | None = None, spo2: int | None = None) -> dict:
     """risk_factors: [{"id", "label": {"en","hi"}, "points"}] for existing conditions such as diabetes or pregnancy."""
     reasons: list[dict] = []
 
@@ -46,6 +61,10 @@ def assess(present: list[str], conditions: list[ConditionMatch], red_flags: list
         add("No symptoms could be identified from the description.", "विवरण से कोई लक्षण पहचाना नहीं जा सका।")
         return _result("UNCERTAIN", None, reasons, confidence=0.0)
 
+    if spo2 is not None and spo2 <= SPO2_EMERGENCY:
+        red_flags = list(red_flags) + [{"id": "low_oxygen", "message": {
+            "en": f"Oxygen level {spo2}% is dangerously low (92% or below). Call 108 / 112 or go to an emergency department now.",
+            "hi": f"ऑक्सीजन स्तर {spo2}% खतरनाक रूप से कम है (92% या कम)। तुरंत 108 / 112 पर कॉल करें या इमरजेंसी जाएं।"}}]
     if red_flags:
         for rf in red_flags:
             add(rf["message"]["en"], rf["message"]["hi"])
@@ -86,6 +105,12 @@ def assess(present: list[str], conditions: list[ConditionMatch], red_flags: list
             add(f"Existing condition: {rf['label']['en']}", f"पहले से बीमारी: {rf['label']['hi']}", pts)
 
     score = max(0.0, min(100.0, score))
+    floor = next((sid for sid in NEVER_LOW if sid in present), None)
+    if floor and score < LOW_MAX:
+        add(*NEVER_LOW[floor], LOW_MAX - score); score = LOW_MAX
+    if spo2 is not None and spo2 <= SPO2_URGENT and score < LOW_MAX:
+        add(f"Oxygen level {spo2}% is below normal: see a doctor today", f"ऑक्सीजन स्तर {spo2}% सामान्य से कम है: आज ही डॉक्टर को दिखाएं",
+            LOW_MAX - score); score = LOW_MAX
     level = "LOW" if score < LOW_MAX else "MODERATE" if score < MODERATE_MAX else "HIGH"
     return _result(level, round(score), reasons, confidence=round(top.likelihood, 2))
 

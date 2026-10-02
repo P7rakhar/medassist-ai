@@ -49,7 +49,8 @@ class SlotScheduler:
         slots = self.free_slots(doctor, now, limit=1)
         return slots[0] if slots else None
 
-    def book(self, doctor: dict, slot_iso: str, patient_name: str, mode: str, now: datetime | None = None) -> dict:
+    def book(self, doctor: dict, slot_iso: str, patient_name: str, mode: str, now: datetime | None = None,
+             note: dict | None = None) -> dict:
         now = now or datetime.now()
         start = datetime.fromisoformat(slot_iso)
         if slot_iso not in {s.isoformat(timespec="minutes") for s in self.free_slots(doctor, now)}:
@@ -65,8 +66,26 @@ class SlotScheduler:
             "mode": mode, "patient_name": patient_name or "Patient", "fee": doctor["fee"],
             "video_link": f"https://meet.jit.si/MedAssist-{booking_id}-{secrets.token_hex(4)}" if mode == "video" else None,
             "created_at": now.isoformat(timespec="seconds"),
+            "note": note, "status": "waiting",        # pre-consultation note for the doctor (handoff.py)
         }
         self.bookings[booking_id] = booking
         if self.store:
             self.store.save_booking(booking)
         return booking
+
+    def set_review(self, booking_id: str, level: str, condition: str | None, comment: str | None,
+                   now: datetime | None = None) -> dict:
+        b = self.bookings[booking_id]
+        when = (now or datetime.now()).isoformat(timespec="seconds")
+        b.update({"doctor_level": level, "doctor_condition": condition, "doctor_comment": comment,
+                  "reviewed_at": when, "status": "seen"})
+        if self.store:
+            self.store.set_review(booking_id, level, condition, comment, when)
+        return b
+
+    def set_status(self, booking_id: str, status: str) -> dict:
+        b = self.bookings[booking_id]
+        b["status"] = status
+        if self.store:
+            self.store.set_status(booking_id, status)
+        return b

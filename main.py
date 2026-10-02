@@ -15,16 +15,19 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import graph_neo4j, llm
+from fastapi.responses import JSONResponse
+
+from . import fhir, graph_neo4j, llm
+from .labels import agreement, labelled_cases
 from .db import DEFAULT_PATH, Store
 from .matching import WEIGHTS
 from .pipeline import MedAssistEngine
 
 app = FastAPI(
     title="MedAssist AI API",
-    version="0.4.0",
+    version="0.6.0",
     description="Team Neuraxis — multilingual AI symptom triage with ConText NLP, a medical knowledge graph, "
-                "information-gain clarifying questions and explainable doctor matching. "
+                "information-gain clarifying questions, explainable doctor matching and a doctor handoff note. "
                 "Global Innoventure Hackathon 2026, Problem Statement 5.",
 )
 # Open CORS so other teams' systems can call this API during common-problem integration.
@@ -57,6 +60,23 @@ class BookRequest(BaseModel):
     slot: str = Field(..., examples=["2026-10-02T10:20"])
     patient_name: str = Field("Patient", max_length=80)
     mode: str = Field("in_person", pattern="^(in_person|video)$")
+    case: AnalyzeRequest | None = Field(None, description="The patient's description and answers. The server re-runs "
+                                        "the analysis and attaches a pre-consultation note for the doctor.")
+
+
+class StatusRequest(BaseModel):
+    status: str = Field(..., pattern="^(waiting|seen)$")
+
+
+class ReviewRequest(BaseModel):
+    level: str = Field(..., pattern="^(LOW|MODERATE|HIGH)$", description="The doctor's own triage level")
+    condition: str | None = Field(None, max_length=80, description="The doctor's diagnosis (optional)")
+    comment: str | None = Field(None, max_length=300)
+
+
+def _with_doctor(b: dict) -> dict:
+    d = engine.doctor_by_id.get(b["doctor_id"], {})
+    return {**b, "specialty": d.get("specialty"), "doctor_languages": d.get("languages", [])}
 
 
 @app.get("/api/health", tags=["system"])
@@ -104,15 +124,85 @@ def book(req: BookRequest):
     d = engine.doctor_by_id.get(req.doctor_id)
     if not d:
         raise HTTPException(404, "Doctor not found")
+    note = None
+    if req.case and (req.case.text.strip() or req.case.answers):
+        c = req.case
+        slots = {k: v for k, v in c.slots.model_dump().items() if v is not None}
+        note = engine.analyze(c.text, c.lat, c.lon, c.age, c.mode, c.extra_symptoms, answers=c.answers,
+                              slots=slots, log_case=False)["handoff"]
     try:
-        return engine.scheduler.book(d, req.slot, req.patient_name, req.mode)
+        return engine.scheduler.book(d, req.slot, req.patient_name, req.mode, note=note)
     except ValueError as exc:
         raise HTTPException(409, str(exc))
 
 
 @app.get("/api/bookings", tags=["booking"])
 def bookings():
-    return list(engine.scheduler.bookings.values())
+    return [_with_doctor(b) for b in engine.scheduler.bookings.values()]
+
+
+@app.get("/api/bookings/{booking_id}", tags=["booking"])
+def booking(booking_id: str):
+    b = engine.scheduler.bookings.get(booking_id)
+    if not b:
+        raise HTTPException(404, "Booking not found")
+    return _with_doctor(b)
+
+
+@app.post("/api/bookings/{booking_id}/status", tags=["doctor view"])
+def booking_status(booking_id: str, req: StatusRequest):
+    if booking_id not in engine.scheduler.bookings:
+        raise HTTPException(404, "Booking not found")
+    return _with_doctor(engine.scheduler.set_status(booking_id, req.status))
+
+
+@app.post("/api/bookings/{booking_id}/review", tags=["doctor view"])
+def booking_review(booking_id: str, req: ReviewRequest):
+    """The doctor confirms or corrects the AI's triage. Each review becomes a doctor-labelled case."""
+    if booking_id not in engine.scheduler.bookings:
+        raise HTTPException(404, "Booking not found")
+    return _with_doctor(engine.scheduler.set_review(booking_id, req.level, (req.condition or "").strip() or None,
+                                                    (req.comment or "").strip() or None))
+
+
+@app.get("/api/labelled-cases", tags=["doctor view"])
+def labelled():
+    """Doctor-labelled cases from real use (no patient names) and how often the AI agreed with the doctor."""
+    cases = labelled_cases(list(engine.scheduler.bookings.values()))
+    return {"stats": agreement(cases), "cases": cases}
+
+
+@app.get("/api/bookings/{booking_id}/fhir", tags=["interoperability"])
+def booking_fhir(booking_id: str):
+    """The booking's pre-consultation note as an HL7 FHIR R4 document Bundle, shaped like ABDM's OPConsultRecord."""
+    b = engine.scheduler.bookings.get(booking_id)
+    if not b:
+        raise HTTPException(404, "Booking not found")
+    try:
+        bundle = fhir.booking_bundle(b, engine.doctor_by_id.get(b["doctor_id"], {}))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+    return JSONResponse(bundle, media_type="application/fhir+json",
+                        headers={"Content-Disposition": f'attachment; filename="medassist-{booking_id}-fhir.json"'})
+
+
+URGENCY = {"HIGH": 0, "UNCERTAIN": 1, "MODERATE": 2, "LOW": 3, None: 4}
+
+
+@app.get("/api/doctor/{doctor_id}/appointments", tags=["doctor view"])
+def doctor_appointments(doctor_id: str, order: str = "time"):
+    """A doctor's upcoming appointments, each with the patient's pre-consultation note.
+    order=urgency puts HIGH-risk patients first (then by time)."""
+    d = engine.doctor_by_id.get(doctor_id)
+    if not d:
+        raise HTTPException(404, "Doctor not found")
+    items = [_with_doctor(b) for b in engine.scheduler.bookings.values() if b["doctor_id"] == doctor_id]
+    level = lambda b: (b.get("note") or {}).get("triage", {}).get("level")
+    if order == "urgency":
+        items.sort(key=lambda b: (b["status"] == "seen", URGENCY.get(level(b), 4), b["slot"]))
+    else:
+        items.sort(key=lambda b: (b["status"] == "seen", b["slot"]))
+    return {"doctor": d, "appointments": items}
 
 
 @app.get("/api/insights", tags=["public health"])

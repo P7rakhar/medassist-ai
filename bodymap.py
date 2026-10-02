@@ -5,7 +5,7 @@ People rarely use textbook phrases. They say "my stomach hurts", "dard ho raha
 hai pet mein" or "सिर में बहुत दर्द". Instead of listing every sentence, we
 recognise a BODY PART and a SENSATION anywhere within a short window of each
 other (either order, same clause) and map the pair to a symptom in the
-knowledge graph. 25 body parts x 11 sensations in English, Hindi and Hinglish.
+knowledge graph. 25 body parts x 14 sensations in English, Hindi and Hinglish.
 """
 from __future__ import annotations
 
@@ -76,14 +76,14 @@ PAIR_TO_SYMPTOM = {
     ("joint", "pain"): "joint_pain", ("joint", "swelling"): "joint_pain", ("joint", "stiffness"): "joint_pain",
     ("leg", "swelling"): "swelling", ("leg", "numbness"): "limb_weakness", ("leg", "weakness"): "limb_weakness", ("leg", "pain"): "body_ache",
     ("arm", "numbness"): "limb_weakness", ("arm", "weakness"): "limb_weakness", ("arm", "pain"): "body_ache",
-    ("neck", "pain"): "neck_pain", ("neck", "stiffness"): "neck_pain",
+    ("neck", "pain"): "neck_pain", ("neck", "stiffness"): "neck_stiffness",
     ("body", "pain"): "body_ache", ("muscle", "pain"): "body_ache", ("body", "weakness"): "fatigue",
     ("skin", "itching"): "itching", ("skin", "redness"): "rash", ("skin", "swelling"): "swelling", ("skin", "yellow"): "yellow_eyes",
     ("urine", "burning"): "burning_urination", ("urine", "pain"): "burning_urination", ("urine", "bleeding"): "blood_in_urine", ("urine", "yellow"): "dark_urine",
     ("urine", "dark"): "dark_urine",
     ("heart", "racing"): "palpitations", ("heart", "pain"): "chest_pain",
     ("nose", "bleeding"): "nosebleed", ("nose", "discharge"): "runny_nose",
-    ("gums", "bleeding"): "bleeding_gums", ("stool", "bleeding"): "bleeding_gums", ("vomit", "bleeding"): "bleeding_gums",
+    ("gums", "bleeding"): "bleeding_gums", ("stool", "bleeding"): "blood_in_stool", ("vomit", "bleeding"): "bleeding_gums",
     ("cough", "bleeding"): "coughing_blood",
     ("face", "numbness"): "face_droop", ("face", "weakness"): "face_droop", ("face", "swelling"): "swelling", ("face", "pain"): "facial_pain",
     ("sinus", "pain"): "facial_pain", ("sinus", "heaviness"): "facial_pain",
@@ -91,6 +91,7 @@ PAIR_TO_SYMPTOM = {
 LEFT = {phonetic_key(w) for w in ["left", "baaye", "baye", "bayen", "बाएं", "बाएँ", "बायां"]}
 RIGHT = {phonetic_key(w) for w in ["right", "daaye", "daye", "dayen", "दाएं", "दाहिने", "दाहिनी"]}
 LOWER = {phonetic_key(w) for w in ["lower", "bottom", "neeche", "niche", "नीचे", "निचले"]}
+ONE_SIDE = LEFT | RIGHT | {phonetic_key(w) for w in ["one", "ek", "एक", "unilateral"]}
 
 
 def _index(groups: dict[str, list[str]]) -> dict[tuple[str, ...], str]:
@@ -152,6 +153,8 @@ def compose(keys: list[str], blocked: set[int]) -> tuple[list[tuple[int, int, st
             near = set(keys[max(0, start - 3):end])
             if sid == "body_ache" and part == "arm" and near & LEFT:
                 sid = "radiating_pain"                           # "pain in my left arm"
+            if sid == "swelling" and part == "leg" and near & ONE_SIDE:
+                sid = "one_leg_swelling"                         # "my left leg is swollen" (possible DVT)
             if sid == "abdominal_pain" and near & RIGHT and near & LOWER:
                 sid = "lower_right_abd_pain"                     # "pain in the lower right side of my stomach"
             inner = [k for k in range(start, end) if not (ps <= k < pe or ss <= k < se)]

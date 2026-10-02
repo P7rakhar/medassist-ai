@@ -1,0 +1,2 @@
+# Only needed to retrain the second-opinion model (training/train_model.py). The app itself doesn't need these.
+scikit-learn>=1.3
