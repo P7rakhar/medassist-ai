@@ -13,28 +13,23 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
+    <a class="brand" href="index.html" aria-label="MedAssist AI home">
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#fff"/><path d="M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z" fill="#1C2554"/></svg>
       <div>
         <strong>MedAssist AI</strong>
         <span data-i18n="tagline">Healthcare guidance in your language</span>
       </div>
-    </div>
+    </a>
+    <nav class="roles" aria-label="Views">
+      <a href="index.html" class="on" aria-current="page" data-i18n="rolePatient">Patient</a>
+      <a href="doctor.html" data-i18n="roleDoctor">Doctor</a>
+      <a href="insights.html" data-i18n="roleOfficer">Health officer</a>
+    </nav>
     <div class="controls">
       <button type="button" id="simple-toggle" class="simple-toggle" aria-pressed="false">
         <span class="aa" aria-hidden="true">Aa</span>
         <span data-i18n="simple">Simple mode</span>
       </button>
-      <a class="nav-link" href="doctor.html" data-i18n="doctorLink">Doctor view</a>
-      <a class="nav-link" href="insights.html" data-i18n="insightsLink">Health officer insights</a>
-      <label class="field-inline">
-        <span data-i18n="location">Location</span>
-        <select id="location"></select>
-      </label>
-      <div class="seg" role="group" aria-label="Consultation mode">
-        <button type="button" data-mode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
-        <button type="button" data-mode="video" data-i18n="video">Video consult</button>
-      </div>
       <div class="seg" role="group" aria-label="Interface language">
         <button type="button" data-ui="en" class="on">English</button>
         <button type="button" data-ui="hi">हिंदी</button>
@@ -42,9 +37,17 @@
     </div>
   </header>
 
-  <main class="layout">
-    <section class="input-col" aria-labelledby="ask-h">
-      <h1 id="ask-h" data-i18n="askTitle">How are you feeling?</h1>
+  <main class="flow">
+    <ol class="stepper" id="stepper" aria-label="Progress">
+      <li data-step="1" class="on"><span class="dot">1</span><span data-i18n="stepDescribe">Describe</span></li>
+      <li data-step="2"><span class="dot">2</span><span data-i18n="stepQuestions">Questions</span></li>
+      <li data-step="3"><span class="dot">3</span><span data-i18n="stepResult">Result</span></li>
+      <li data-step="4"><span class="dot">4</span><span data-i18n="stepDoctor">Doctor</span></li>
+    </ol>
+
+    <!-- Step 1: describe -->
+    <section class="step" id="step-1" aria-labelledby="ask-h">
+      <h1 id="ask-h" tabindex="-1" data-i18n="askTitle">How are you feeling?</h1>
       <p class="hint" data-i18n="askHint">Speak or type in English, Hindi or Hinglish. Mention how long it has lasted.</p>
 
       <div id="consent" class="consent" role="region" aria-labelledby="consent-h">
@@ -77,109 +80,127 @@
             <span data-i18n="age">Age</span>
             <input id="age" type="number" min="0" max="120" inputmode="numeric" placeholder="—">
           </label>
-          <button id="go" class="primary" type="button" data-i18n="analyse">Check symptoms</button>
+          <button id="go" class="primary" type="button" disabled data-i18n="analyse">Check symptoms</button>
         </div>
         <p id="mic-status" class="mic-status" aria-live="polite"></p>
       </div>
 
       <div class="examples">
-        <span class="examples-label" data-i18n="tryExample">Try an example</span>
+        <span class="examples-label" data-i18n="tryExample">Or tap an example</span>
         <div id="examples" class="chips"></div>
       </div>
-
-      <section class="trace" aria-labelledby="trace-h">
-        <h2 id="trace-h" data-i18n="traceTitle">How the AI reached this result</h2>
-        <p class="hint" id="trace-empty" data-i18n="traceEmpty">Each step of the analysis pipeline appears here, with its timing.</p>
-        <ol id="trace" class="trace-list"></ol>
-        <p id="kg-stats" class="kg-stats"></p>
-      </section>
     </section>
 
-    <section class="result-col" aria-live="polite">
-      <div id="empty" class="empty">
-        <h2 data-i18n="emptyTitle">Your result will appear here</h2>
-        <p data-i18n="emptyBody">You'll see the risk level, what to do next, likely causes and doctors you can book — in English or Hindi.</p>
-        <ul class="levels-key">
-          <li><i class="dot low"></i><span data-i18n="lvl_LOW">Low risk</span></li>
-          <li><i class="dot moderate"></i><span data-i18n="lvl_MODERATE">Moderate risk</span></li>
-          <li><i class="dot high"></i><span data-i18n="lvl_HIGH">High risk</span></li>
-          <li><i class="dot uncertain"></i><span data-i18n="lvl_UNCERTAIN">Needs a doctor's review</span></li>
-        </ul>
+    <!-- Step 2: one question at a time -->
+    <section class="step" id="step-2" hidden aria-labelledby="q-h">
+      <button type="button" class="back-link" id="back-describe" data-i18n="editDesc">← Edit my description</button>
+      <div class="q-progress">
+        <span id="q-count"></span>
+        <span class="q-track" aria-hidden="true"><i id="q-bar"></i></span>
+      </div>
+      <div id="q-card" class="q-card" aria-live="polite"></div>
+      <p id="q-sofar" class="q-sofar"></p>
+      <div class="q-alt">
+        <button type="button" id="q-skip" class="ghost" data-i18n="skipQs">Skip questions, show my result</button>
+        <button type="button" id="q-more-toggle" class="ghost" aria-expanded="false" data-i18n="moreDetail">Describe more in my own words</button>
+      </div>
+      <div id="q-more" class="q-more" hidden>
+        <textarea id="more-text" rows="3" data-i18n-ph="morePh" placeholder="e.g. the fever comes with shivering every evening"></textarea>
+        <button type="button" id="more-go" class="primary" disabled data-i18n="moreGo">Add and continue</button>
+      </div>
+    </section>
+
+    <!-- Step 3: result -->
+    <section class="step" id="step-3" hidden aria-labelledby="v-level">
+      <div id="verdict" class="verdict">
+        <div class="verdict-main">
+          <p class="verdict-level" id="v-level" tabindex="-1"></p>
+          <p class="verdict-alt" id="v-level-alt"></p>
+          <p class="verdict-action" id="v-action"></p>
+        </div>
+        <div class="verdict-side">
+          <div class="gauge" id="v-gauge"><span id="v-score"></span><small data-i18n="riskScore">risk score</small></div>
+          <button id="speak-out" class="ghost-light" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4Z"/></svg>
+            <span data-i18n="readAloud">Read aloud</span>
+          </button>
+        </div>
+        <div id="v-emergency" class="emergency" hidden>
+          <a href="tel:112" class="call">112</a><a href="tel:108" class="call">108</a>
+          <span data-i18n="emergencyNote">Emergency numbers in India — ambulance and police</span>
+        </div>
       </div>
 
-      <div id="result" hidden>
-        <div id="verdict" class="verdict">
-          <div class="verdict-main">
-            <p class="verdict-level" id="v-level"></p>
-            <p class="verdict-alt" id="v-level-alt"></p>
-            <p class="verdict-action" id="v-action"></p>
-          </div>
-          <div class="verdict-side">
-            <div class="gauge" id="v-gauge"><span id="v-score"></span><small data-i18n="riskScore">risk score</small></div>
-            <button id="speak-out" class="ghost-light" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4Z"/></svg>
-              <span data-i18n="readAloud">Read aloud</span>
-            </button>
-          </div>
-          <div id="v-emergency" class="emergency" hidden>
-            <a href="tel:112" class="call">112</a><a href="tel:108" class="call">108</a>
-            <span data-i18n="emergencyNote">Emergency numbers in India — ambulance and police</span>
-          </div>
-        </div>
+      <div class="block" id="advice-block">
+        <h3 data-i18n="advice">What you can do now</h3>
+        <p id="advice" class="advice"></p>
+      </div>
 
-        <div class="block" id="questions-block">
-          <div class="block-head">
-            <h3 data-i18n="questionsTitle">A few quick questions</h3>
-            <button type="button" id="restart" class="link-btn" hidden data-i18n="startOver">Start over</button>
-          </div>
-          <p class="hint" data-i18n="questionsHint">Each answer updates the assessment straight away.</p>
-          <div id="questions" class="questions"></div>
-        </div>
+      <div class="result-actions">
+        <button type="button" id="to-doctors" class="primary" data-i18n="findDoctor">Find a doctor →</button>
+        <button type="button" id="note-print" class="ghost" data-i18n="savePrint">Save / print summary</button>
+        <a id="note-wa" class="wa" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6-.1l.8-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
+          <span data-i18n="whatsapp">Send on WhatsApp</span></a>
+        <button type="button" id="note-preview" class="link-btn" data-i18n="notePreview">Preview the doctor's note</button>
+      </div>
 
-        <div class="block">
-          <h3 data-i18n="understood">What we understood</h3>
+      <details class="acc" id="acc-understood">
+        <summary data-i18n="understood">What we understood</summary>
+        <div class="acc-body">
           <div id="understood" class="chips"></div>
           <p id="facts" class="facts"></p>
           <div id="context-notes" class="context-notes"></div>
           <ul id="reasons" class="reasons"></ul>
         </div>
-
-        <div class="block" id="conditions-block">
-          <h3 data-i18n="likely">Possible causes</h3>
+      </details>
+      <details class="acc" id="conditions-block">
+        <summary data-i18n="likely">Possible causes</summary>
+        <div class="acc-body">
           <ul id="conditions" class="conditions"></ul>
           <p class="fine" data-i18n="likelyNote">Relative match from our medical knowledge graph — not a diagnosis.</p>
           <div id="second-opinion" class="second" hidden></div>
         </div>
-
-        <div class="block" id="advice-block">
-          <h3 data-i18n="advice">What you can do now</h3>
-          <p id="advice" class="advice"></p>
+      </details>
+      <details class="acc" id="acc-trace">
+        <summary data-i18n="traceTitle">How the AI reached this result</summary>
+        <div class="acc-body">
+          <p class="hint" id="trace-empty" data-i18n="traceEmpty">Each step of the analysis pipeline appears here, with its timing.</p>
+          <ol id="trace" class="trace-list"></ol>
+          <p id="kg-stats" class="kg-stats"></p>
         </div>
+      </details>
 
-        <div class="block note-block" id="note-block">
-          <h3 data-i18n="noteTitle">Doctor's note</h3>
-          <p class="hint" data-i18n="noteHint">A one-page summary of what you told us, for your doctor or family. It's attached automatically when you book.</p>
-          <div class="note-actions">
-            <button type="button" id="note-preview" class="ghost" data-i18n="notePreview">Preview note</button>
-            <a id="note-wa" class="wa" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6-.1l.8-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
-              <span data-i18n="whatsapp">Send on WhatsApp</span></a>
-            <button type="button" id="note-print" class="ghost" data-i18n="print">Print / save PDF</button>
-          </div>
+      <p class="disclaimer" id="disclaimer"></p>
+      <div class="end-row"><button type="button" class="ghost new-check" data-i18n="newCheck">Start a new check</button></div>
+    </section>
+
+    <!-- Step 4: doctors -->
+    <section class="step" id="step-4" hidden aria-labelledby="doc-h">
+      <button type="button" class="back-link" id="back-result" data-i18n="backResult">← Back to my result</button>
+      <div class="block-head">
+        <h2 id="doc-h" tabindex="-1" data-i18n="doctors">Recommended doctors</h2>
+        <span id="doc-specialty" class="pill"></span>
+      </div>
+      <div class="doc-controls">
+        <label class="field-inline light">
+          <span data-i18n="location">Location</span>
+          <select id="location"></select>
+        </label>
+        <div class="seg seg-light" role="group" aria-label="Consultation mode">
+          <button type="button" data-mode="in_person" class="on" data-i18n="inPerson">Visit clinic</button>
+          <button type="button" data-mode="video" data-i18n="video">Video consult</button>
         </div>
-
-        <div class="block">
-          <div class="block-head">
-            <h3 data-i18n="doctors">Recommended doctors</h3>
-            <span id="doc-specialty" class="pill"></span>
-          </div>
+      </div>
+      <details class="acc acc-small">
+        <summary data-i18n="rankHow">How we rank doctors</summary>
+        <div class="acc-body">
           <p class="hint" id="formula" data-i18n="formula">Ranked by match score = 0.30 specialty + 0.20 distance + 0.15 rating + 0.15 availability + 0.10 language + 0.10 cost</p>
           <div class="legend" id="legend"></div>
-          <ol id="doctors" class="doctors"></ol>
         </div>
-
-        <p class="disclaimer" id="disclaimer"></p>
-      </div>
+      </details>
+      <ol id="doctors" class="doctors"></ol>
+      <div class="end-row"><button type="button" class="ghost new-check" data-i18n="newCheck">Start a new check</button></div>
     </section>
   </main>
 
@@ -206,8 +227,10 @@
       <h2 data-i18n="booked">Booked</h2>
       <dl id="book-summary" class="summary"></dl>
       <p id="book-shared" class="shared"></p>
-      <div class="dlg-actions">
+      <div class="dlg-actions wrap">
         <a id="open-doctor-view" class="ghost" target="_blank" rel="noopener" data-i18n="doctorViewLink">See what the doctor sees</a>
+        <button type="button" id="done-print" class="ghost" data-i18n="savePrint">Save / print summary</button>
+        <button type="button" class="ghost new-check" data-i18n="newCheck">Start a new check</button>
         <button class="primary" id="close-done" type="button" data-i18n="done">Done</button>
       </div>
     </div>
@@ -216,8 +239,18 @@
   <dialog id="note-dlg" class="note-dlg">
     <div id="note-body"></div>
     <div class="dlg-actions">
-      <button type="button" id="note-dlg-print" class="ghost" data-i18n="print">Print / save PDF</button>
+      <button type="button" id="note-dlg-print" class="ghost" data-i18n="savePrint">Save / print summary</button>
       <button type="button" id="note-dlg-close" class="primary" data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="new-dlg">
+    <h2 data-i18n="newTitle">Start a new check?</h2>
+    <p class="hint" data-i18n="newBody">This result will be cleared from the screen. Save or print it first if you need it.</p>
+    <div class="dlg-actions wrap">
+      <button type="button" id="new-save" class="ghost" data-i18n="savePrint">Save / print summary</button>
+      <button type="button" id="new-cancel" class="ghost" data-i18n="cancel">Cancel</button>
+      <button type="button" id="new-confirm" class="primary" data-i18n="newConfirm">Clear and start new</button>
     </div>
   </dialog>
 

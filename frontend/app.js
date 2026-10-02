@@ -6,7 +6,7 @@ const T = {
     tagline: "Healthcare guidance in your language", location: "Location", inPerson: "Visit clinic", video: "Video consult",
     askTitle: "How are you feeling?", askHint: "Speak or type in English, Hindi or Hinglish. Mention how long it has lasted.",
     placeholder: "e.g. I have had fever and body ache for 3 days", speak: "Speak", stop: "Stop", age: "Age",
-    analyse: "Check symptoms", analysing: "Checking…", tryExample: "Try an example",
+    analyse: "Check symptoms", analysing: "Checking…",
     traceTitle: "How the AI reached this result", traceEmpty: "Each step of the analysis pipeline appears here, with its timing.",
     emptyTitle: "Your result will appear here",
     emptyBody: "You'll see the risk level, what to do next, likely causes and doctors you can book — in English or Hindi.",
@@ -56,12 +56,23 @@ const T = {
     consentBody: "MedAssist gives guidance, not a diagnosis. What you type or say is analysed only to suggest care. For health trends we keep anonymised data only: no words, no name, area rounded to about 1 km. If you book, your symptom summary is shared with that doctor. Voice is turned into text by your browser's speech service.",
     consentAgree: "I agree", consentGiven: "Consent given", consentHow: "How your data is used",
     consentNeeded: "Please read the note above and tap “I agree” first.", pleaseAnswer: "Please answer:",
+    rolePatient: "Patient", roleDoctor: "Doctor", roleOfficer: "Health officer",
+    stepDescribe: "Describe", stepQuestions: "Questions", stepResult: "Result", stepDoctor: "Doctor",
+    qCount: (n, max) => `Question ${n} of up to ${max}`, notSure: "Not sure", skipQs: "Skip questions, show my result",
+    moreDetail: "Describe more in my own words", morePh: "e.g. the fever comes with shivering every evening", moreGo: "Add and continue",
+    editDesc: "← Edit my description", backResult: "← Back to my result", findDoctor: "Find a doctor →",
+    savePrint: "Save / print summary", newCheck: "Start a new check", newTitle: "Start a new check?",
+    newBody: "This result will be cleared from the screen. Save or print it first if you need it.", newConfirm: "Clear and start new",
+    typeFirst: "Type or speak your symptoms first. The button switches on when there is something to check.",
+    stopFirst: "Press Stop when you have finished speaking.", doneListening: "Got it. Check the text, then press Check symptoms.",
+    exampleChosen: "Example filled in. Press Check symptoms when ready.", soFar: "Understood so far:", updating: "Updating…",
+    rankHow: "How we rank doctors", tryExample: "Or tap an example",
   },
   hi: {
     tagline: "आपकी भाषा में स्वास्थ्य मार्गदर्शन", location: "स्थान", inPerson: "क्लिनिक जाएं", video: "वीडियो परामर्श",
     askTitle: "आप कैसा महसूस कर रहे हैं?", askHint: "हिंदी, अंग्रेज़ी या हिंग्लिश में बोलें या लिखें। बताएं कि कब से तकलीफ है।",
     placeholder: "जैसे: मुझे 3 दिन से बुखार और बदन दर्द है", speak: "बोलें", stop: "रोकें", age: "उम्र",
-    analyse: "लक्षण जांचें", analysing: "जांच हो रही है…", tryExample: "उदाहरण आज़माएं",
+    analyse: "लक्षण जांचें", analysing: "जांच हो रही है…",
     traceTitle: "AI इस नतीजे तक कैसे पहुंचा", traceEmpty: "विश्लेषण का हर चरण समय के साथ यहां दिखेगा।",
     emptyTitle: "आपका नतीजा यहां दिखेगा",
     emptyBody: "आपको जोखिम का स्तर, आगे क्या करें, संभावित कारण और डॉक्टर दिखेंगे जिनसे आप समय ले सकते हैं।",
@@ -111,6 +122,17 @@ const T = {
     consentBody: "MedAssist मार्गदर्शन देता है, निदान नहीं। आप जो लिखते या बोलते हैं, उसका विश्लेषण सिर्फ़ इलाज सुझाने के लिए होता है। स्वास्थ्य रुझानों के लिए हम केवल गुमनाम डेटा रखते हैं: न आपके शब्द, न नाम, जगह लगभग 1 कि.मी. तक। बुकिंग करने पर आपके लक्षणों का सारांश उसी डॉक्टर को भेजा जाता है। आवाज़ को टेक्स्ट में आपके ब्राउज़र की स्पीच सेवा बदलती है।",
     consentAgree: "मैं सहमत हूं", consentGiven: "सहमति दी गई", consentHow: "आपका डेटा कैसे इस्तेमाल होता है",
     consentNeeded: "कृपया पहले ऊपर दी गई जानकारी पढ़कर “मैं सहमत हूं” दबाएं।", pleaseAnswer: "कृपया जवाब दें:",
+    rolePatient: "मरीज़", roleDoctor: "डॉक्टर", roleOfficer: "स्वास्थ्य अधिकारी",
+    stepDescribe: "बताएं", stepQuestions: "सवाल", stepResult: "नतीजा", stepDoctor: "डॉक्टर",
+    qCount: (n, max) => `सवाल ${n} (ज़्यादा से ज़्यादा ${max})`, notSure: "पता नहीं", skipQs: "सवाल छोड़ें, नतीजा दिखाएं",
+    moreDetail: "अपने शब्दों में और बताएं", morePh: "जैसे: बुखार रोज़ शाम को कंपकंपी के साथ आता है", moreGo: "जोड़ें और आगे बढ़ें",
+    editDesc: "← विवरण बदलें", backResult: "← नतीजे पर वापस", findDoctor: "डॉक्टर खोजें →",
+    savePrint: "सारांश सेव / प्रिंट करें", newCheck: "नई जांच शुरू करें", newTitle: "नई जांच शुरू करें?",
+    newBody: "यह नतीजा स्क्रीन से हट जाएगा। ज़रूरत हो तो पहले सेव या प्रिंट कर लें।", newConfirm: "हटाएं और नई शुरू करें",
+    typeFirst: "पहले अपने लक्षण लिखें या बोलें। कुछ लिखा होने पर ही बटन चालू होगा।",
+    stopFirst: "बोल चुकें तो रोकें दबाएं।", doneListening: "समझ गए। टेक्स्ट देख लें, फिर लक्षण जांचें दबाएं।",
+    exampleChosen: "उदाहरण भर दिया गया। तैयार हों तो लक्षण जांचें दबाएं।", soFar: "अब तक समझा:", updating: "अपडेट हो रहा है…",
+    rankHow: "हम डॉक्टरों को कैसे रैंक करते हैं", tryExample: "या कोई उदाहरण चुनें",
   },
 };
 
@@ -131,7 +153,9 @@ const SEG_COLORS = ["var(--seg-1)", "var(--seg-2)", "var(--seg-3)", "var(--seg-4
 const LANG_NAMES = { en: "English", hi: "हिंदी", pa: "ਪੰਜਾਬੀ", bn: "বাংলা", ta: "தமிழ்", te: "తెలుగు", ml: "മലയാളം", mr: "मराठी", gu: "ગુજરાતી", ur: "اردو" };
 
 const state = { ui: "en", mode: "in_person", meta: null, loc: null, last: null, answers: {}, slots: {}, booking: null, voiceLang: "en-IN",
-                consented: false, simple: false, lastBody: null };
+                consented: false, simple: false, lastBody: null,
+                step: 1, skipped: new Set(), asked: 0, busy: false, saved: false, booked: false, example: null };
+const MAX_QUESTIONS = 5;      // like NHS 111 online / Ada: a few focused questions, one at a time, always skippable
 const $ = (id) => document.getElementById(id);
 const t = (k) => (T[state.ui][k] ?? T.en[k] ?? k);
 const L = (obj) => (obj ? (state.ui === "hi" ? obj.hi ?? obj.en : obj.en ?? obj.hi) : "");
@@ -145,6 +169,7 @@ const session = {
 /* ------------------------------------------------------------ setup --- */
 async function init() {
   bindEvents();
+  updateGo();
   setConsent(session.get("medassist-consent") === "yes");
   setSimple(session.get("medassist-simple") === "yes");
   applyI18n();
@@ -169,55 +194,76 @@ function applyI18n() {
     if (typeof v === "string") el.textContent = v;
   });
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => (el.placeholder = t(el.dataset.i18nPh)));
-  $("examples").innerHTML = EXAMPLES.map((e, i) => `<button type="button" class="chip" data-ex="${i}">${esc(L(e))}</button>`).join("");
+  $("examples").innerHTML = EXAMPLES.map((e, i) => `<button type="button" class="chip ex" data-ex="${i}" aria-pressed="false">${esc(L(e))}</button>`).join("");
+  setExample(state.example);
   if (state.meta) {
     $("kg-stats").textContent = T[state.ui].kgStats(state.meta.kg) + (state.meta.llm.enabled ? "" : " " + t("llmOff"));
     renderLegend();
   }
-  if (state.last) render(state.last);
+  if (state.last) {
+    render(state.last);
+    if (state.step === 2 && state.current) renderQuestion(state.current, state.last);
+  }
+  if (state.step === 2) $("q-count").textContent = T[state.ui].qCount(state.asked + 1, MAX_QUESTIONS);
 }
 
 function bindEvents() {
-  $("go").addEventListener("click", () => analyse());
-  $("text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) analyse(); });
+  // Step 1: describe
+  $("go").addEventListener("click", startCheck);
+  $("text").addEventListener("input", () => {
+    if (state.example !== null && $("text").value !== EXAMPLES[state.example].text) setExample(null);
+    updateGo();
+  });
+  $("text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !$("go").disabled) startCheck(); });
   $("examples").addEventListener("click", (e) => {
     const b = e.target.closest("[data-ex]"); if (!b) return;
     if (needConsent()) return;
-    $("text").value = EXAMPLES[+b.dataset.ex].text; analyse();
+    if (voice.wanted) { $("mic-status").textContent = t("stopFirst"); return; }
+    $("text").value = EXAMPLES[+b.dataset.ex].text;
+    setExample(+b.dataset.ex);
+    $("mic-status").textContent = t("exampleChosen");
+    updateGo(); $("go").focus({ preventScroll: true });
   });
-  $("consent-ok").addEventListener("click", () => { setConsent(true); $("mic-status").textContent = ""; });
+  $("consent-ok").addEventListener("click", () => { setConsent(true); $("mic-status").textContent = ""; updateGo(); });
   $("consent-more").addEventListener("click", () => setConsent(false, true));
   $("simple-toggle").addEventListener("click", () => setSimple(!state.simple));
+  $("mic").addEventListener("click", toggleMic);
+  document.querySelectorAll("[data-voice]").forEach((b) => b.addEventListener("click", () => setVoiceLang(b.dataset.voice)));
+  document.querySelectorAll("[data-ui]").forEach((b) => b.addEventListener("click", () => {
+    state.ui = b.dataset.ui; toggleOn("[data-ui]", b);
+    if (!voice.wanted) setVoiceLang(state.ui === "hi" ? "hi-IN" : "en-IN");
+    applyI18n();
+  }));
+
+  // Step 2: one question at a time
+  $("q-card").addEventListener("click", onAnswer);
+  $("q-skip").addEventListener("click", () => goStep(3));
+  $("q-more-toggle").addEventListener("click", () => {
+    const open = $("q-more").hidden;
+    $("q-more").hidden = !open; $("q-more-toggle").setAttribute("aria-expanded", String(open));
+    if (open) $("more-text").focus();
+  });
+  $("more-text").addEventListener("input", () => { $("more-go").disabled = !$("more-text").value.trim() || state.busy; });
+  $("more-go").addEventListener("click", addDetail);
+  $("back-describe").addEventListener("click", () => goStep(1));
+
+  // Step 3: result
+  $("speak-out").addEventListener("click", speakResult);
+  $("to-doctors").addEventListener("click", () => goStep(4));
+  $("note-print").addEventListener("click", printSummary);
   $("note-preview").addEventListener("click", () => {
     $("note-body").innerHTML = MedNote.render(state.last.handoff, state.ui); $("note-dlg").showModal();
   });
-  $("note-print").addEventListener("click", () => MedNote.print(MedNote.render(state.last.handoff, state.ui)));
-  $("note-dlg-print").addEventListener("click", () => { $("note-dlg").close(); MedNote.print(MedNote.render(state.last.handoff, state.ui)); });
+  $("note-dlg-print").addEventListener("click", () => { $("note-dlg").close(); printSummary(); });
   $("note-dlg-close").addEventListener("click", () => $("note-dlg").close());
-  document.querySelectorAll("[data-ui]").forEach((b) => b.addEventListener("click", () => {
-    state.ui = b.dataset.ui; toggleOn("[data-ui]", b);
-    setVoiceLang(state.ui === "hi" ? "hi-IN" : "en-IN");
-    applyI18n();
-  }));
-  document.querySelectorAll("[data-voice]").forEach((b) => b.addEventListener("click", () => setVoiceLang(b.dataset.voice)));
-  $("restart").addEventListener("click", () => { state.answers = {}; state.slots = {}; analyse(true); });
+  $("note-wa").addEventListener("click", () => { state.saved = true; });
+
+  // Step 4: doctors
+  $("back-result").addEventListener("click", () => goStep(3));
   document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => {
-    state.mode = b.dataset.mode; toggleOn("[data-mode]", b); if (state.last) analyse(true);
+    state.mode = b.dataset.mode; toggleOn("[data-mode]", b); if (state.last) refresh();
   }));
   $("location").addEventListener("change", onLocation);
-  $("mic").addEventListener("click", toggleMic);
-  $("speak-out").addEventListener("click", speakResult);
-  $("questions").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-answer]"); if (!b) return;
-    const kind = b.dataset.answer;
-    if (kind === "symptom") state.answers[b.dataset.id] = b.dataset.value === "yes";
-    else if (kind === "location") state.answers[b.dataset.id] = true, state.slots._location = true;
-    else if (kind === "slot") {
-      const v = b.dataset.value;
-      state.slots[b.dataset.slot] = b.dataset.slot === "severity" ? v : Number(v);
-    }
-    analyse(true);
-  });
   $("doctors").addEventListener("click", (e) => {
     const b = e.target.closest("[data-book]"); if (b) openBooking(b.dataset.book);
   });
@@ -230,6 +276,13 @@ function bindEvents() {
   }));
   $("confirm-book").addEventListener("click", confirmBooking);
   $("close-done").addEventListener("click", () => $("book-dlg").close());
+  $("done-print").addEventListener("click", printSummary);
+
+  // Finishing: a new check only after this one is saved, booked or knowingly discarded
+  document.querySelectorAll(".new-check").forEach((b) => b.addEventListener("click", askNewCheck));
+  $("new-save").addEventListener("click", () => { printSummary(); });
+  $("new-cancel").addEventListener("click", () => $("new-dlg").close());
+  $("new-confirm").addEventListener("click", () => { $("new-dlg").close(); resetCheck(); });
 }
 
 /* ---------------------------------------------- consent, simple mode --- */
@@ -274,13 +327,152 @@ function onLocation() {
   if (state.last) analyse(true);
 }
 
+/* ------------------------------------------------------------- flow --- */
+/* Describe -> a few questions, one at a time -> result -> doctor. Each step replaces the last one on screen. */
+function goStep(n) {
+  const prev = state.step;
+  state.step = n;
+  document.querySelectorAll(".step").forEach((el) => {
+    const on = el.id === `step-${n}`;
+    el.hidden = !on;
+    if (on) { el.classList.remove("enter-fwd", "enter-back"); void el.offsetWidth; el.classList.add(n >= prev ? "enter-fwd" : "enter-back"); }
+  });
+  document.querySelectorAll("#stepper li").forEach((li) => {
+    const k = +li.dataset.step;
+    li.classList.toggle("on", k === n); li.classList.toggle("done", k < n);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  const focus = { 1: "ask-h", 3: "v-level", 4: "doc-h" }[n];
+  if (focus) setTimeout(() => $(focus)?.focus({ preventScroll: true }), 260);
+  if (n === 3 && state.simple) speakResult();
+  if (n !== 1 && voice.wanted) stopVoice();
+}
+
+function updateGo() {
+  const has = $("text").value.trim().length >= 3;
+  $("go").disabled = !has || voice.wanted || state.busy;
+  $("go").classList.toggle("ready", has && !voice.wanted && !state.busy);
+}
+
+function setExample(i) {
+  state.example = i;
+  document.querySelectorAll("#examples [data-ex]").forEach((b) => {
+    const on = i !== null && +b.dataset.ex === i;
+    b.classList.toggle("selected", on); b.setAttribute("aria-pressed", String(on));
+  });
+}
+
+async function startCheck() {
+  if (needConsent()) return;
+  if (voice.wanted) { $("mic-status").textContent = t("stopFirst"); return; }
+  if ($("text").value.trim().length < 3) { $("mic-status").textContent = t("typeFirst"); return; }
+  state.answers = {}; state.slots = {}; state.skipped = new Set(); state.asked = 0; state.saved = false; state.booked = false;
+  $("q-more").hidden = true; $("more-text").value = "";
+  const r = await analyse(false);
+  if (r) nextAfterAnalysis(r);
+}
+
+/* Choose the next question we haven't asked or skipped; emergencies go straight to the result. */
+function questionKey(q) { return q.id || (q.slot ? "slot:" + q.slot : q.type); }
+function nextQuestion(r) {
+  if (r.triage.emergency || state.asked >= MAX_QUESTIONS) return null;
+  return (r.questions || []).find((q) => !state.skipped.has(questionKey(q))
+    && !(q.id && q.id in state.answers) && !(q.slot && q.slot in state.slots) && !(q.type === "location" && state.slots._location)) || null;
+}
+function nextAfterAnalysis(r) {
+  const q = nextQuestion(r);
+  if (q) { renderQuestion(q, r); if (state.step !== 2) goStep(2); }
+  else goStep(3);
+}
+
+function renderQuestion(q, r) {
+  state.current = q;
+  const n = state.asked + 1;
+  $("q-count").textContent = T[state.ui].qCount(n, MAX_QUESTIONS);
+  $("q-bar").style.width = `${Math.round((state.asked / MAX_QUESTIONS) * 100)}%`;
+  const opt = (attrs, label, cls = "chip") => `<button type="button" class="${cls}" ${attrs}>${esc(label)}</button>`;
+  const notSure = opt(`data-answer="skip"`, t("notSure"), "yn unsure");
+  let body;
+  if (q.type === "symptom") {
+    const tag = q.reason === "safety" ? `<span class="q-tag safety">${t("safetyCheck")}</span>` : `<span class="q-tag">${t("mostUseful")}</span>`;
+    body = `${tag}<h2 id="q-h" class="q-big">${esc(L(q.prompt).replace("{label}", L(q.label)))}</h2>
+      <div class="q-actions">${opt(`data-answer="symptom" data-id="${q.id}" data-value="yes"`, t("yes"), "yn yes")}${
+        opt(`data-answer="symptom" data-id="${q.id}" data-value="no"`, t("no"), "yn no")}${notSure}</div>`;
+  } else if (q.type === "location") {
+    body = `<h2 id="q-h" class="q-big">${esc(L(q.prompt))}</h2><div class="q-actions wrap">${
+      q.options.map((o) => opt(`data-answer="location" data-id="${o.symptom}"`, L(o), "yn")).join("")}${notSure}</div>`;
+  } else {
+    body = `<h2 id="q-h" class="q-big">${esc(L(q.prompt))}</h2><div class="q-actions wrap">${
+      q.options.map((o) => opt(`data-answer="slot" data-slot="${q.slot}" data-value="${o.value}"`, L(o), "yn")).join("")}${notSure}</div>`;
+  }
+  const card = $("q-card");
+  card.innerHTML = body;
+  card.classList.remove("q-in"); void card.offsetWidth; card.classList.add("q-in");
+  const sofar = (r.symptoms || []).map(L).slice(0, 6);
+  $("q-sofar").innerHTML = sofar.length ? `<span>${t("soFar")}</span> ${sofar.map((x) => `<span class="chip found small">${esc(x)}</span>`).join(" ")}` : "";
+  if (state.simple) speakText(card.querySelector(".q-big")?.textContent || "");
+}
+
+async function onAnswer(e) {
+  const b = e.target.closest("[data-answer]"); if (!b || state.busy) return;
+  const kind = b.dataset.answer, q = state.current;
+  state.asked += 1;
+  if (kind === "skip") { state.skipped.add(questionKey(q)); nextAfterAnalysis(state.last); return; }
+  if (kind === "symptom") state.answers[b.dataset.id] = b.dataset.value === "yes";
+  else if (kind === "location") { state.answers[b.dataset.id] = true; state.slots._location = true; }
+  else if (kind === "slot") state.slots[b.dataset.slot] = b.dataset.slot === "severity" ? b.dataset.value : Number(b.dataset.value);
+  b.classList.add("picked");
+  $("q-card").classList.add("busy");
+  const r = await analyse(true);
+  $("q-card").classList.remove("busy");
+  if (r) nextAfterAnalysis(r);
+}
+
+async function addDetail() {
+  const more = $("more-text").value.trim(); if (!more) return;
+  const base = $("text").value.trim();
+  $("text").value = base ? `${base}${/[.!?।]$/.test(base) ? "" : "."} ${more}` : more;
+  $("more-text").value = ""; $("more-go").disabled = true; $("q-more").hidden = true;
+  $("q-more-toggle").setAttribute("aria-expanded", "false");
+  $("q-card").classList.add("busy");
+  const r = await analyse(true);
+  $("q-card").classList.remove("busy");
+  if (r) nextAfterAnalysis(r);
+}
+
+async function refresh() { await analyse(true); }      // location / mode changed: same answers, new doctor list
+
+function printSummary() {
+  if (!state.last?.handoff) return;
+  state.saved = true;
+  MedNote.print(MedNote.render(state.last.handoff, state.ui));
+}
+
+function askNewCheck() {
+  if (state.step === 1 || state.saved || state.booked || !state.last) { if ($("book-dlg").open) $("book-dlg").close(); resetCheck(); return; }
+  if ($("book-dlg").open) $("book-dlg").close();
+  $("new-dlg").showModal();
+}
+
+function resetCheck() {
+  if (voice.wanted) stopVoice();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  state.last = null; state.lastBody = null; state.answers = {}; state.slots = {}; state.skipped = new Set();
+  state.asked = 0; state.saved = false; state.booked = false;
+  $("text").value = ""; $("age").value = ""; setExample(null);
+  $("mic-status").textContent = ""; $("trace").innerHTML = ""; $("trace-empty").hidden = false;
+  document.querySelectorAll(".acc").forEach((d) => (d.open = false));
+  updateGo();
+  goStep(1);
+}
+
 /* ---------------------------------------------------------- analyse --- */
 async function analyse(keep = false) {
   const text = $("text").value.trim();
   if (!keep) { state.answers = {}; state.slots = {}; }          // a new description starts a new conversation
-  if (needConsent()) return;
-  if (!text && !Object.keys(state.answers).length) { $("mic-status").textContent = t("describeFirst"); $("text").focus(); return; }
-  const btn = $("go"); btn.disabled = true; btn.textContent = t("analysing");
+  if (needConsent()) return null;
+  if (!text && !Object.keys(state.answers).length) { $("mic-status").textContent = t("describeFirst"); $("text").focus(); return null; }
+  const btn = $("go"); state.busy = true; updateGo(); btn.textContent = t("analysing");
   const ageVal = $("age").value;
   const { _location, ...slots } = state.slots;
   const body = { text, lat: state.loc?.lat ?? 28.544, lon: state.loc?.lon ?? 77.333, mode: state.mode,
@@ -292,17 +484,18 @@ async function analyse(keep = false) {
     state.lastBody = body;
     $("mic-status").textContent = "";
     render(state.last);
-    if (state.simple) { speakResult(); $("verdict").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    return state.last;
   } catch (err) {
     $("mic-status").textContent = err instanceof TypeError ? t("serverError") : String(err.message || err);
+    if (state.step !== 1) goStep(1);
+    return null;
   } finally {
-    btn.disabled = false; btn.textContent = t("analyse");
+    state.busy = false; btn.textContent = t("analyse"); updateGo();
   }
 }
 
 /* ----------------------------------------------------------- render --- */
 function render(r) {
-  $("empty").hidden = true; $("result").hidden = false;
   const tr = r.triage;
 
   // Verdict band
@@ -340,9 +533,6 @@ function render(r) {
   $("reasons").innerHTML = tr.reasons.map((x) =>
     `<li>${esc(L(x))}${x.points ? `<span class="pts">(${x.points > 0 ? "+" : ""}${Math.round(x.points)})</span>` : ""}</li>`).join("");
 
-  // Clarifying questions
-  renderQuestions(r);
-
   // Conditions
   $("conditions-block").hidden = !r.conditions.length;
   $("conditions").innerHTML = r.conditions.map((c) => `
@@ -376,7 +566,7 @@ function render(r) {
   $("disclaimer").textContent = L(r.disclaimer);
 
   // Doctor's note: WhatsApp share (wa.me opens WhatsApp with the text ready; the user picks the contact)
-  $("note-block").hidden = !r.handoff || !r.symptoms.length;
+  ["note-print", "note-preview", "note-wa"].forEach((id) => { $(id).hidden = !r.handoff || !r.symptoms.length; });
   if (r.handoff) $("note-wa").href = "https://wa.me/?text=" + encodeURIComponent(r.handoff.text[state.ui] || r.handoff.text.en);
 
   renderTrace(r);
@@ -412,27 +602,6 @@ function doctorRow(d) {
       <tbody>${rows}</tbody><tfoot><tr><td>${t("total")}</td><td></td><td></td><td>${d.match_score.toFixed(3)}</td></tr></tfoot></table>
     </details>
   </li>`;
-}
-
-function renderQuestions(r) {
-  const qs = r.questions || [];
-  const answered = Object.keys(state.answers).length + Object.keys(state.slots).length;
-  $("questions-block").hidden = !qs.length && !answered;
-  $("restart").hidden = !answered;
-  const opt = (attrs, label, cls = "chip") => `<button type="button" class="${cls}" ${attrs}>${esc(label)}</button>`;
-  $("questions").innerHTML = qs.map((q) => {
-    if (q.type === "symptom") {
-      const tag = q.reason === "safety" ? `<span class="q-tag safety">${t("safetyCheck")}</span>` : `<span class="q-tag">${t("mostUseful")}</span>`;
-      return `<div class="q"><p class="q-text">${tag}${esc(L(q.prompt).replace("{label}", L(q.label)))}</p>
-        <div class="q-actions">${opt(`data-answer="symptom" data-id="${q.id}" data-value="yes"`, t("yes"), "yn yes")}${opt(`data-answer="symptom" data-id="${q.id}" data-value="no"`, t("no"), "yn no")}</div></div>`;
-    }
-    if (q.type === "location") {
-      return `<div class="q"><p class="q-text">${esc(L(q.prompt))}</p><div class="chips">${
-        q.options.map((o) => opt(`data-answer="location" data-id="${o.symptom}"`, L(o))).join("")}</div></div>`;
-    }
-    return `<div class="q"><p class="q-text">${esc(L(q.prompt))}</p><div class="chips">${
-      q.options.map((o) => opt(`data-answer="slot" data-slot="${q.slot}" data-value="${o.value}"`, L(o))).join("")}</div></div>`;
-  }).join("");
 }
 
 function renderLegend() {
@@ -517,7 +686,8 @@ async function confirmBooking() {
     $("book-shared").textContent = data.note ? T[state.ui].sharedWith(data.doctor_name) : "";
     $("open-doctor-view").href = `doctor.html?doctor=${encodeURIComponent(data.doctor_id)}&booking=${encodeURIComponent(data.booking_id)}`;
     $("book-form").hidden = true; $("book-done").hidden = false;
-    analyse(true);  // refresh slots so the booked one disappears
+    state.booked = true;
+    refresh();      // refresh slots so the booked one disappears
   } catch (err) {
     $("book-error").textContent = String(err.message || err);
   }
@@ -560,6 +730,7 @@ function toggleMic() {
   renderLive();
   openSession(SR);
   voice.timer = setInterval(tickVoice, 250);
+  updateGo();
 }
 
 function openSession(SR) {
@@ -622,8 +793,10 @@ function finishVoice() {
   $("mic").setAttribute("aria-pressed", "false");
   $("mic").querySelector("span").textContent = t("speak");
   $("live").hidden = true;
-  if (!voice.error) $("mic-status").textContent = "";     // keep error messages visible
-  if (voice.finalText.trim()) analyse();
+  if (!voice.error) $("mic-status").textContent = voice.finalText.trim() ? t("doneListening") : "";   // keep errors visible
+  if (voice.finalText.trim() && state.example !== null && voice.finalText !== EXAMPLES[state.example].text) setExample(null);
+  updateGo();
+  if (voice.finalText.trim()) $("go").focus({ preventScroll: true });
 }
 
 function joinText(a, b) {
@@ -646,13 +819,21 @@ function showHearing() {
   voice.hearingTimer = setTimeout(() => live.classList.remove("hearing"), 700);
 }
 
+function speakText(text) {
+  if (!text || !("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  const lang = state.ui === "hi" ? "hi-IN" : "en-IN";
+  u.lang = lang; u.rate = 0.95;
+  const v = speechSynthesis.getVoices().find((x) => x.lang === lang) || speechSynthesis.getVoices().find((x) => x.lang.startsWith(lang.slice(0, 2)));
+  if (v) u.voice = v;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
 function speakResult() {
   if (!state.last || !("speechSynthesis" in window)) return;
   const r = state.last, tr = r.triage;
   const parts = [T[state.ui]["lvl_" + tr.level] + ".", L(tr.action)];
   if (r.conditions[0] && tr.level !== "UNCERTAIN") parts.push(L(r.conditions[0].name) + ".", L(r.conditions[0].advice));
-  const q = (r.questions || [])[0];
-  if (state.simple && q) parts.push(t("pleaseAnswer"), L(q.prompt).replace("{label}", L(q.label)));
   const u = new SpeechSynthesisUtterance(parts.join(" "));
   const lang = state.ui === "hi" ? "hi-IN" : "en-IN";
   u.lang = lang;
